@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fire Safety Training — NALEO Educational Fund</title>
+  <style>
+    :root {
+      --navy:        #1B3A6B;
+      --navy-light:  #2A528A;
+      --navy-dark:   #102345;
+      --gold:        #C8A035;
+      --gold-light:  #DDB84A;
+      --fire-red:    #D93025;
+      --fire-orange: #E8501C;
+      --fire-amber:  #F59E0B;
+      --bg:          #F4F6F9;
+      --bg-alt:      #EEF1F6;
+      --white:       #FFFFFF;
+      --border:      #E2E8F0;
+      --text:        #1E293B;
+      --text-2:      #475569;
+      --text-muted:  #6B7280;
+      --green:       #16A34A;
+      --green-bg:    #F0FDF4;
+      --green-bdr:   #BBF7D0;
+      --red-bg:      #FEF2F2;
+      --red-bdr:     #FECACA;
+      --red-text:    #B91C1C;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Segoe UI', Calibri, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── Progress bar ── */
+    .progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--border); z-index: 200; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--navy), var(--gold)); transition: width 0.4s ease; width: 0%; }
+
+    /* ── Header ── */
+    .header {
+      position: fixed; top: 3px; left: 0; width: 100%;
+      padding: 10px 28px; display: flex; align-items: center; justify-content: space-between;
+      z-index: 150; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
+    .brand-emblem {
+      background: var(--navy); color: var(--white);
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px;
+      padding: 5px 10px; border-radius: 5px;
+      text-transform: uppercase; line-height: 1.3; text-align: center;
+    }
+    .brand-emblem span { display: block; color: var(--gold); font-size: 0.55rem; letter-spacing: 2px; }
+    .brand-info { }
+    .brand-title { font-size: 0.84rem; font-weight: 700; color: var(--navy); line-height: 1.2; }
+    .brand-sub { font-size: 0.68rem; color: var(--text-muted); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .slide-counter { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 1px; font-weight: 600; }
+    .save-indicator { font-size: 0.65rem; color: var(--green); font-weight: 600; display: none; }
+    .save-indicator.visible { display: block; }
+
+    /* ── Presentation area ── */
+    .presentation {
+      flex: 1; position: relative; overflow: hidden;
+      padding-top: 60px; padding-bottom: 60px;
+    }
+
+    /* ── Slides ── */
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px 44px;
+      opacity: 0; transform: translateX(60px);
+      transition: opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.4s cubic-bezier(.4,0,.2,1);
+      pointer-events: none; overflow-y: auto;
+    }
+    .slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+    .slide.exit   { opacity: 0; transform: translateX(-60px); }
+    .slide-content { max-width: 1040px; width: 100%; }
+
+    /* ── Title slide ── */
+    .title-hero {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 55%, var(--navy-light) 100%);
+      border-radius: 14px; padding: 56px 48px; margin-bottom: 20px;
+      position: relative; overflow: hidden; text-align: center;
+    }
+    .title-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 25% 60%, rgba(200,160,53,.18) 0%, transparent 55%),
+                  radial-gradient(circle at 75% 25%, rgba(255,255,255,.05) 0%, transparent 50%);
+    }
+    .title-eyebrow { font-size: 0.68rem; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 14px; position: relative; }
+    h1.slide-title { font-size: clamp(2.6rem, 6vw, 4.5rem); font-weight: 900; color: var(--white); line-height: 1.05; margin-bottom: 16px; position: relative; letter-spacing: -0.5px; }
+    h1.slide-title em { font-style: normal; color: var(--gold); }
+    .slide-subtitle { font-size: 0.95rem; color: rgba(255,255,255,0.82); max-width: 520px; margin: 0 auto 26px; line-height: 1.75; position: relative; }
+    .meta-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+    .meta-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); border-radius: 50px; padding: 6px 16px; font-size: 0.75rem; color: var(--white); font-weight: 500; }
+
+    /* ── Section eyebrow + heading ── */
+    .slide-eyebrow { font-size: 0.68rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+    h2.slide-heading { font-size: clamp(1.5rem, 3.2vw, 2.2rem); font-weight: 800; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .slide-divider { width: 44px; height: 3px; background: linear-gradient(90deg, var(--gold), transparent); margin-bottom: 18px; border-radius: 2px; }
+
+    /* ── Grids ── */
+    .two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+
+    /* ── Cards ── */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--navy), var(--gold)); }
+    .card-icon  { font-size: 1.5rem; margin-bottom: 8px; }
+    .card-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--navy); text-transform: uppercase; margin-bottom: 5px; }
+    .card-text  { font-size: 0.8rem; color: var(--text-2); line-height: 1.6; }
+
+    /* ── Info list ── */
+    .info-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .info-list li { display: flex; align-items: flex-start; gap: 11px; padding: 10px 14px; background: var(--white); border-radius: 7px; border: 1px solid var(--border); border-left: 3px solid var(--navy); font-size: 0.82rem; color: var(--text-2); line-height: 1.5; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .info-list li .bullet { font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Stat grid ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 22px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .stat-number { font-size: 2.2rem; font-weight: 900; color: var(--navy); line-height: 1; }
+    .stat-label  { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
+
+    /* ── Callout boxes ── */
+    .callout { background: var(--bg-alt); border: 1px solid var(--border); border-left: 4px solid var(--navy); border-radius: 8px; padding: 13px 16px; margin-top: 12px; }
+    .callout p { font-size: 0.82rem; color: var(--text-2); line-height: 1.65; }
+    .callout strong { color: var(--navy); }
+    .callout.warning { border-left-color: var(--fire-red); background: var(--red-bg); border-color: var(--red-bdr); }
+    .callout.warning strong { color: var(--fire-red); }
+    .callout.gold { border-left-color: var(--gold); background: #FFFBEB; border-color: #FDE68A; }
+    .callout.gold strong { color: #92400E; }
+
+    /* ── Fire triangle ── */
+    .triangle-container { display: flex; justify-content: center; align-items: center; }
+    .triangle-svg { filter: drop-shadow(0 4px 18px rgba(217,48,37,.18)); }
+
+    /* ── PASS steps ── */
+    .pass-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
+    .pass-step   { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 20px 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .pass-letter { font-size: 3rem; font-weight: 900; color: var(--navy); line-height: 1; }
+    .pass-word   { font-size: 0.72rem; font-weight: 700; color: var(--gold); margin: 6px 0 4px; letter-spacing: 2px; text-transform: uppercase; }
+    .pass-desc   { font-size: 0.73rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── Classes of fire grid ── */
+    .class-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 14px; }
+    .class-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+    .class-label { font-size: 2.1rem; font-weight: 900; color: var(--navy); }
+    .class-name  { font-size: 0.6rem; font-weight: 700; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; margin: 3px 0; }
+    .class-desc  { font-size: 0.65rem; color: var(--text-muted); line-height: 1.4; }
+
+    /* ── Evacuation steps ── */
+    .evac-steps { display: flex; flex-direction: column; gap: 7px; }
+    .evac-step   { display: flex; align-items: center; gap: 13px; padding: 10px 14px; background: var(--white); border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .evac-num    { width: 30px; height: 30px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; color: var(--white); flex-shrink: 0; }
+    .evac-text   { font-size: 0.81rem; color: var(--text-2); line-height: 1.4; }
+    .evac-text strong { color: var(--text); }
+
+    /* ── Emergency contacts ── */
+    .contacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+    .contact-card  { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; gap: 13px; align-items: flex-start; }
+    .contact-icon  { font-size: 1.7rem; flex-shrink: 0; margin-top: 2px; }
+    .contact-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
+    .contact-value { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .contact-desc  { font-size: 0.76rem; color: var(--text-muted); }
+    .contact-card.emergency { background: var(--navy); border-color: var(--navy); }
+    .contact-card.emergency .contact-label { color: rgba(200,160,53,.9); }
+    .contact-card.emergency .contact-value { color: var(--white); font-size: 1.3rem; }
+    .contact-card.emergency .contact-desc  { color: rgba(255,255,255,.7); }
+
+    /* ── Col headers ── */
+    .col-header { font-size: 0.76rem; font-weight: 700; margin-bottom: 11px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+    .col-header.navy { color: var(--navy); }
+    .col-header.gold { color: #92400E; }
+
+    /* ── Quiz slides ── */
+    .quiz-container  { max-width: 700px; width: 100%; }
+    .question-number { font-size: 0.68rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+    .question-text   { font-size: 1.15rem; font-weight: 700; color: var(--navy); margin-bottom: 20px; line-height: 1.5; }
+    .options-list    { display: flex; flex-direction: column; gap: 9px; }
+    .option {
+      display: flex; align-items: center; gap: 13px;
+      padding: 13px 17px; background: var(--white);
+      border: 1.5px solid var(--border); border-radius: 9px;
+      cursor: pointer; transition: all 0.16s ease;
+      font-size: 0.88rem; color: var(--text-2);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .option:hover          { border-color: var(--navy); background: var(--bg-alt); color: var(--navy); }
+    .option.selected       { border-color: var(--navy); background: rgba(27,58,107,.07); color: var(--navy); }
+    .option.correct        { border-color: var(--green); background: var(--green-bg); color: #15803D; pointer-events: none; font-weight: 600; }
+    .option.wrong          { border-color: #DC2626; background: var(--red-bg); color: var(--red-text); pointer-events: none; }
+    .option-letter { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.76rem; font-weight: 700; color: var(--navy); flex-shrink: 0; }
+    .quiz-btn { margin-top: 16px; padding: 11px 26px; background: var(--navy); border: none; border-radius: 8px; color: var(--white); font-size: 0.86rem; font-weight: 600; cursor: pointer; transition: all 0.22s ease; letter-spacing: 0.5px; font-family: inherit; }
+    .quiz-btn:hover:not(:disabled) { background: var(--navy-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,58,107,.3); }
+    .quiz-btn:disabled { opacity: 0.42; cursor: not-allowed; transform: none; }
+
+    /* ── Quiz intro ── */
+    .quiz-intro-box { background: linear-gradient(135deg, var(--navy-dark), var(--navy-light)); border-radius: 14px; padding: 50px 48px; text-align: center; }
+    .quiz-intro-box h1 { font-size: clamp(2.4rem,6vw,4.2rem); font-weight: 900; color: var(--white); letter-spacing: -0.5px; margin-bottom: 12px; }
+    .quiz-intro-box h1 em { font-style: normal; color: var(--gold); }
+    .quiz-intro-box p { font-size: 0.93rem; color: rgba(255,255,255,.82); max-width: 460px; margin: 0 auto; line-height: 1.75; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+    .tag { padding: 5px 14px; border-radius: 50px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px; background: rgba(27,58,107,.08); color: var(--navy); border: 1px solid rgba(27,58,107,.15); }
+
+    /* ── Score slide ── */
+    .score-screen { text-align: center; max-width: 600px; width: 100%; }
+    .score-circle { width: 148px; height: 148px; border-radius: 50%; border: 4px solid var(--navy); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; background: radial-gradient(circle, rgba(27,58,107,.06), transparent); box-shadow: 0 0 32px rgba(27,58,107,.1); }
+    .score-number  { font-size: 3.4rem; font-weight: 900; color: var(--navy); line-height: 1; }
+    .score-total   { font-size: 0.74rem; color: var(--text-muted); }
+    .score-message { font-size: 0.93rem; color: var(--text-2); margin-bottom: 14px; }
+    .score-breakdown { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+    .score-badge { padding: 6px 16px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
+    .badge-correct { background: var(--green-bg); color: #15803D; border: 1px solid var(--green-bdr); }
+    .badge-wrong   { background: var(--red-bg);   color: var(--red-text); border: 1px solid var(--red-bdr); }
+    .score-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+    .action-btn { padding: 10px 22px; border: none; border-radius: 8px; font-size: 0.84rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s ease; }
+    .action-btn.primary   { background: var(--navy); color: var(--white); }
+    .action-btn.primary:hover   { background: var(--navy-light); }
+    .action-btn.secondary { background: var(--white); color: var(--navy); border: 1.5px solid var(--border); }
+    .action-btn.secondary:hover { background: var(--bg-alt); border-color: var(--navy); }
+
+    /* ── Certificate ── */
+    .cert-section  { margin-top: 18px; }
+    .cert-label    { font-size: 0.76rem; color: var(--text-muted); margin-bottom: 8px; }
+    .cert-name-row { display: flex; gap: 8px; }
+    .cert-name-input { flex: 1; padding: 9px 13px; border: 1.5px solid var(--border); border-radius: 7px; font-size: 0.88rem; font-family: inherit; color: var(--text); background: var(--white); }
+    .cert-name-input:focus { outline: none; border-color: var(--navy); }
+    .cert-print-btn { padding: 9px 18px; background: var(--gold); border: none; border-radius: 7px; color: var(--white); font-weight: 700; font-size: 0.84rem; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .cert-print-btn:hover { background: var(--gold-light); }
+
+    /* Certificate document */
+    .certificate-doc {
+      display: none;
+      border: 3px double var(--navy);
+      border-radius: 10px; padding: 32px 36px; margin-top: 14px;
+      background: var(--white); text-align: center;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+    .certificate-doc.visible { display: block; }
+    .cert-org-name  { font-size: 0.72rem; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; font-family: 'Segoe UI', Arial, sans-serif; font-weight: 700; margin-bottom: 6px; }
+    .cert-doc-title { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin: 6px 0; }
+    .cert-body      { font-size: 0.84rem; color: var(--text-2); margin: 10px 0; line-height: 1.9; }
+    .cert-name-disp { font-size: 1.45rem; font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--navy); display: inline-block; padding-bottom: 3px; margin: 8px 0; font-style: italic; min-width: 200px; }
+    .cert-details   { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
+    .cert-footer    { display: flex; justify-content: space-around; margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .cert-sig       { text-align: center; min-width: 130px; }
+    .cert-sig-val   { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .cert-sig-line  { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; border-top: 1px solid var(--border); padding-top: 4px; }
+
+    /* ── Nav footer ── */
+    .nav-footer {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      padding: 11px 32px; display: flex; align-items: center; justify-content: space-between;
+      background: var(--white); border-top: 1px solid var(--border); z-index: 150;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.05);
+    }
+    .nav-btn { display: flex; align-items: center; gap: 7px; padding: 8px 20px; border-radius: 7px; border: 1.5px solid var(--border); background: var(--white); color: var(--text-2); font-size: 0.8rem; cursor: pointer; transition: all 0.18s ease; font-weight: 500; letter-spacing: 0.5px; font-family: inherit; }
+    .nav-btn:hover:not(:disabled) { background: var(--bg-alt); border-color: var(--navy); color: var(--navy); }
+    .nav-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+    .nav-btn.primary { background: var(--navy); border-color: var(--navy); color: var(--white); font-weight: 600; }
+    .nav-btn.primary:hover:not(:disabled) { background: var(--navy-light); border-color: var(--navy-light); }
+    .nav-dots { display: flex; gap: 6px; align-items: center; }
+    .nav-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all 0.2s ease; cursor: pointer; }
+    .nav-dot.active { background: var(--navy); transform: scale(1.4); }
+
+    /* ── Animations ── */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp .45s ease forwards; }
+
+    /* ── Dark mode toggle ── */
+    .dark-toggle { display: flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
+    .dark-toggle input { display: none; }
+    .toggle-track { width: 38px; height: 21px; background: var(--border); border-radius: 11px; position: relative; transition: background 0.25s ease; flex-shrink: 0; }
+    .dark-toggle input:checked + .toggle-track { background: var(--navy); }
+    .toggle-thumb { position: absolute; top: 2.5px; left: 2.5px; width: 16px; height: 16px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 4px rgba(0,0,0,.2); transition: transform 0.25s ease; }
+    .dark-toggle input:checked + .toggle-track .toggle-thumb { transform: translateX(17px); }
+    .toggle-icon { font-size: 0.9rem; line-height: 1; }
+
+    /* ── Dark mode colour overrides ── */
+    body.dark {
+      --bg:        #0F1117;
+      --bg-alt:    #1A1D27;
+      --white:     #1E2232;
+      --border:    #2E3350;
+      --text:      #E8EAF2;
+      --text-2:    #A8B2CC;
+      --text-muted:#6B7590;
+      --green-bg:  #0C2518;
+      --green-bdr: #1A4830;
+      --red-bg:    #280F0F;
+      --red-bdr:   #481A1A;
+      --red-text:  #FC8181;
+    }
+    body.dark .callout.gold { background: #221800; border-color: #5C3D00; border-left-color: var(--gold); }
+    body.dark .callout.gold strong { color: var(--gold-light); }
+    body.dark .callout.warning { background: #280F0F; border-color: #481A1A; }
+    body.dark .col-header.gold { color: var(--gold-light); }
+    body.dark .tag { background: rgba(255,255,255,.07); color: var(--text-2); border-color: rgba(255,255,255,.12); }
+    body.dark .option.correct { background: #0C2518; color: #4ADE80; }
+    body.dark .option.wrong   { background: #280F0F; color: #FC8181; }
+    body.dark .badge-correct  { background: #0C2518; color: #4ADE80; border-color: #1A4830; }
+    body.dark .badge-wrong    { background: #280F0F; color: #FC8181; border-color: #481A1A; }
+    body.dark .action-btn.secondary { background: var(--white); }
+    /* Certificate always prints on white */
+    body.dark .certificate-doc { background: #FFFFFF; color: #1E293B; border-color: #1B3A6B; }
+    body.dark .certificate-doc .cert-org-name  { color: #C8A035; }
+    body.dark .certificate-doc .cert-doc-title,
+    body.dark .certificate-doc .cert-name-disp { color: #1B3A6B; }
+    body.dark .certificate-doc .cert-body,
+    body.dark .certificate-doc .cert-sig-val   { color: #334155; }
+    body.dark .certificate-doc .cert-details,
+    body.dark .certificate-doc .cert-sig-line  { color: #6B7280; }
+    body.dark .certificate-doc .cert-footer    { border-color: #E2E8F0; }
+
+    /* ── Hero flame illustration ── */
+    @keyframes flicker {
+      0%, 100% { transform: scaleX(1) scaleY(1) rotate(-0.5deg); }
+      25%  { transform: scaleX(1.05) scaleY(0.97) rotate(0.6deg); }
+      50%  { transform: scaleX(0.97) scaleY(1.04) rotate(-1deg); }
+      75%  { transform: scaleX(1.03) scaleY(0.98) rotate(0.9deg); }
+    }
+    @keyframes flickerSm {
+      0%, 100% { transform: scaleX(1) scaleY(1) rotate(0.5deg); }
+      33%  { transform: scaleX(1.06) scaleY(0.96) rotate(-0.8deg); }
+      66%  { transform: scaleX(0.96) scaleY(1.05) rotate(1deg); }
+    }
+    @keyframes emberGlow {
+      0%, 100% { opacity: 0.14; transform: translateY(-50%) scale(1); }
+      50%  { opacity: 0.24; transform: translateY(-50%) scale(1.1); }
+    }
+    .hero-flame-wrap {
+      position: absolute; right: 4%; top: 50%; transform: translateY(-50%);
+      pointer-events: none; z-index: 0;
+    }
+    .flame-main { animation: flicker 1.8s ease-in-out infinite; transform-origin: 50% 96%; display: block; }
+    .flame-sm   { animation: flickerSm 2.2s ease-in-out infinite 0.7s; transform-origin: 50% 96%; display: block;
+                  position: absolute; bottom: -8px; left: -54px; opacity: 0.55; }
+    .hero-ember-left {
+      position: absolute; left: 3%; top: 50%; transform: translateY(-50%);
+      width: 170px; height: 250px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(232,80,28,.18) 0%, transparent 70%);
+      animation: emberGlow 3.2s ease-in-out infinite 1.2s;
+      pointer-events: none; z-index: 0;
+    }
+    /* Warm ember page background */
+    .presentation::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 8% 88%, rgba(232,80,28,.06) 0%, transparent 32%),
+        radial-gradient(ellipse at 92% 12%, rgba(245,158,11,.06) 0%, transparent 32%);
+    }
+
+    /* ── Print ── */
+    @media print {
+      body * { visibility: hidden !important; }
+      .certificate-doc, .certificate-doc * { visibility: visible !important; }
+      .certificate-doc {
+        position: fixed !important; top: 50% !important; left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 82% !important; display: block !important;
+        box-shadow: none !important;
+        background: #fff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Progress -->
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-brand">
+    <div class="brand-emblem">NEF<span>NALEO</span></div>
+    <div class="brand-info">
+      <div class="brand-title">Fire Safety Training</div>
+      <div class="brand-sub">NALEO Educational Fund · 2026</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="save-indicator" id="saveIndicator">✓ Progress saved</span>
+    <label class="dark-toggle" title="Toggle dark mode">
+      <input type="checkbox" id="darkToggle" onchange="toggleDark()">
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-icon" id="darkIcon">☀️</span>
+    </label>
+    <span class="slide-counter" id="slideCounter">01 / 14</span>
+  </div>
+</div>
+
+<!-- Presentation -->
+<div class="presentation">
+
+  <!-- ═══ SLIDE 0: Title ═══ -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-content" style="text-align:center;">
+      <div class="title-hero">
+        <!-- Ember glow left -->
+        <div class="hero-ember-left"></div>
+        <!-- Animated flame graphic right -->
+        <div class="hero-flame-wrap">
+          <svg class="flame-main" width="122" height="172" viewBox="0 0 122 172" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M61 167C30 167 4 143 4 114 4 87 23 70 34 50 39 37 34 14 61 3 88 14 83 37 88 50 99 70 118 87 118 114 118 143 92 167 61 167Z" fill="url(#ff1)" opacity="0.95"/>
+            <path d="M61 158C35 158 13 137 13 114 13 92 31 78 42 59 47 49 48 33 61 23 74 33 75 49 80 59 91 78 109 92 109 114 109 137 87 158 61 158Z" fill="url(#ff2)"/>
+            <path d="M61 146C40 146 23 128 23 110 23 93 37 82 46 67 51 58 53 46 61 39 69 46 71 58 76 67 85 82 99 93 99 110 99 128 82 146 61 146Z" fill="url(#ff3)"/>
+            <ellipse cx="61" cy="128" rx="14" ry="17" fill="#FEFCE8" opacity="0.88"/>
+            <defs>
+              <linearGradient id="ff1" x1="61" y1="3" x2="61" y2="167" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#7F1D1D"/>
+                <stop offset="55%"  stop-color="#C2410C"/>
+                <stop offset="100%" stop-color="#EA580C" stop-opacity="0.8"/>
+              </linearGradient>
+              <linearGradient id="ff2" x1="61" y1="23" x2="61" y2="158" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#B45309"/>
+                <stop offset="100%" stop-color="#F59E0B"/>
+              </linearGradient>
+              <linearGradient id="ff3" x1="61" y1="39" x2="61" y2="146" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#D97706"/>
+                <stop offset="100%" stop-color="#FCD34D"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- Small companion flame -->
+          <svg class="flame-sm" width="66" height="96" viewBox="0 0 66 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M33 92C17 92 3 79 3 64 3 50 14 42 20 30 23 23 22 10 33 3 44 10 43 23 46 30 52 42 63 50 63 64 63 79 49 92 33 92Z" fill="url(#ffs1)" opacity="0.88"/>
+            <path d="M33 86C20 86 9 75 9 62 9 50 19 43 25 33 28 27 29 17 33 11 37 17 38 27 41 33 47 43 57 50 57 62 57 75 46 86 33 86Z" fill="url(#ffs2)"/>
+            <ellipse cx="33" cy="74" rx="8" ry="10" fill="#FEFCE8" opacity="0.8"/>
+            <defs>
+              <linearGradient id="ffs1" x1="33" y1="3" x2="33" y2="92" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#C2410C"/>
+                <stop offset="100%" stop-color="#EA580C" stop-opacity="0.7"/>
+              </linearGradient>
+              <linearGradient id="ffs2" x1="33" y1="11" x2="33" y2="86" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#D97706"/>
+                <stop offset="100%" stop-color="#FCD34D"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="title-eyebrow">NALEO Educational Fund · Workplace Safety Program</div>
+        <h1 class="slide-title">Fire Safety<br><em>Training</em></h1>
+        <p class="slide-subtitle">Essential knowledge to prevent, respond to, and survive fire emergencies — in the workplace and at home.</p>
+        <div class="meta-badges">
+          <span class="meta-badge">🏢 Workplace &amp; Home Safety</span>
+          <span class="meta-badge">⏱ ~25 Minutes</span>
+          <span class="meta-badge">📝 10-Question Quiz</span>
+          <span class="meta-badge">📜 Completion Certificate</span>
+        </div>
+      </div>
+      <div class="callout gold" style="max-width:600px;margin:0 auto;">
+        <p>💡 <strong>Tip:</strong> Your progress is automatically saved in your browser. You can close this tab and resume where you left off.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 1: Why It Matters ═══ -->
+  <div class="slide" id="slide-1">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 1</div>
+      <h2 class="slide-heading">Why Fire Safety Matters</h2>
+      <div class="slide-divider"></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-number">111K</div><div class="stat-label">Non-residential fires per year (NFPA)</div></div>
+        <div class="stat-card"><div class="stat-number">$3.3B</div><div class="stat-label">Annual direct property loss from fires</div></div>
+        <div class="stat-card"><div class="stat-number">2,900+</div><div class="stat-label">Civilian fire deaths annually in the U.S.</div></div>
+      </div>
+      <div class="callout" style="margin-top:18px;">
+        <p>🔑 <strong>The good news:</strong> Most fires are entirely preventable. With proper training, you can identify risks early, respond quickly, and protect yourself and others. OSHA requires fire safety training for all employees under <strong>29 CFR 1910.38 and 1910.157</strong>.</p>
+      </div>
+      <div class="callout gold" style="margin-top:10px;">
+        <p>🏠 <strong>At home,</strong> fires kill more Americans than all natural disasters combined. A working smoke alarm cuts your risk of dying in a home fire in half.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 2: Fire Triangle ═══ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 2</div>
+      <h2 class="slide-heading">The Fire Triangle</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col" style="align-items:center;gap:44px;">
+        <div class="triangle-container">
+          <svg class="triangle-svg" width="270" height="250" viewBox="0 0 270 250">
+            <defs>
+              <linearGradient id="tg" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#D93025"/>
+                <stop offset="50%" stop-color="#E8501C"/>
+                <stop offset="100%" stop-color="#F59E0B"/>
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <polygon points="135,18 14,234 256,234" fill="rgba(217,48,37,0.06)" stroke="url(#tg)" stroke-width="2.5" filter="url(#glow)"/>
+            <text x="135" y="128" text-anchor="middle" fill="#D93025" font-family="Georgia,serif" font-size="17" font-weight="700" letter-spacing="2">🔥 FIRE</text>
+            <text x="135" y="11"  text-anchor="middle" fill="#F59E0B" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="2">HEAT</text>
+            <text x="8"   y="248" fill="#E8501C" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="1">FUEL</text>
+            <text x="192" y="248" fill="#D93025" font-family="Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="1">OXYGEN</text>
+            <circle cx="135" cy="18"  r="4.5" fill="#F59E0B"/>
+            <circle cx="14"  cy="234" r="4.5" fill="#E8501C"/>
+            <circle cx="256" cy="234" r="4.5" fill="#D93025"/>
+          </svg>
+        </div>
+        <div>
+          <ul class="info-list">
+            <li><span class="bullet">🌡️</span><div><strong>Heat</strong> — energy that ignites fuel. Sources include sparks, open flames, friction, and hot surfaces.</div></li>
+            <li><span class="bullet">🪵</span><div><strong>Fuel</strong> — any combustible material: wood, paper, fabrics, flammable liquids, gases, and electrical equipment.</div></li>
+            <li><span class="bullet">💨</span><div><strong>Oxygen</strong> — fire needs at least 16% oxygen. Normal air is ~21%, making most environments fire-ready.</div></li>
+          </ul>
+          <div class="callout" style="margin-top:14px;">
+            <p>💡 <strong>To extinguish a fire,</strong> remove at least one element: cool it with water, smother it with CO₂, or remove the fuel source.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 3: Classes of Fire ═══ -->
+  <div class="slide" id="slide-3">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 3</div>
+      <h2 class="slide-heading">Classes of Fire</h2>
+      <div class="slide-divider"></div>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:8px;">Understanding the type of fire is critical — using the wrong extinguisher can be dangerous or deadly.</p>
+      <div class="class-grid">
+        <div class="class-card"><div class="class-label">A</div><div class="class-name">Ordinary</div><div class="class-desc">Wood, paper, cloth, trash, plastics. The most common fire type.</div></div>
+        <div class="class-card"><div class="class-label">B</div><div class="class-name">Flammable</div><div class="class-desc">Gasoline, oil, grease, paint, solvents. Never use water.</div></div>
+        <div class="class-card"><div class="class-label">C</div><div class="class-name">Electrical</div><div class="class-desc">Energized wiring, fuse boxes, motors, and appliances.</div></div>
+        <div class="class-card"><div class="class-label">D</div><div class="class-name">Metal</div><div class="class-desc">Combustible metals: magnesium, titanium, sodium. Rare but extremely dangerous.</div></div>
+        <div class="class-card"><div class="class-label">K</div><div class="class-name">Kitchen</div><div class="class-desc">Cooking oils, fats, and greases in commercial kitchens.</div></div>
+      </div>
+      <div class="callout warning">
+        <p>⚠️ <strong>Never use water</strong> on Class B (spreads fire), Class C (electrocution risk), Class D (violent reaction), or Class K fires. Always match the extinguisher to the fire class.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 4: PASS Method ═══ -->
+  <div class="slide" id="slide-4">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 4</div>
+      <h2 class="slide-heading">Using a Fire Extinguisher: The PASS Method</h2>
+      <div class="slide-divider"></div>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:4px;">Remember the <strong style="color:var(--navy);">PASS</strong> method — four steps that could save your life.</p>
+      <div class="pass-steps">
+        <div class="pass-step">
+          <div class="pass-letter">P</div>
+          <div class="pass-word">Pull</div>
+          <div class="pass-desc">Pull the safety pin to break the tamper seal. The extinguisher is now ready.</div>
+        </div>
+        <div class="pass-step">
+          <div class="pass-letter">A</div>
+          <div class="pass-word">Aim</div>
+          <div class="pass-desc">Aim the nozzle LOW — at the BASE of the fire, never at the flames.</div>
+        </div>
+        <div class="pass-step">
+          <div class="pass-letter">S</div>
+          <div class="pass-word">Squeeze</div>
+          <div class="pass-desc">Squeeze the handle slowly and evenly to release the agent.</div>
+        </div>
+        <div class="pass-step">
+          <div class="pass-letter">S</div>
+          <div class="pass-word">Sweep</div>
+          <div class="pass-desc">Sweep side to side at the base until the fire is fully out.</div>
+        </div>
+      </div>
+      <div class="callout warning" style="margin-top:16px;">
+        <p>🚨 <strong>When NOT to fight the fire:</strong> If the fire is larger than a wastepaper basket, spreading rapidly, producing toxic smoke, or blocking your exit — evacuate immediately and call 911. <strong>No property is worth your life.</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 5: Workplace Hazards ═══ -->
+  <div class="slide" id="slide-5">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 5</div>
+      <h2 class="slide-heading">Workplace Fire Hazards</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col">
+        <ul class="info-list">
+          <li><span class="bullet">⚡</span><div><strong>Electrical hazards</strong> — overloaded outlets, frayed cords, damaged wiring, and equipment left running unattended.</div></li>
+          <li><span class="bullet">🧪</span><div><strong>Flammable substances</strong> — improperly stored chemicals, solvents, and cleaning agents near ignition sources.</div></li>
+          <li><span class="bullet">🔥</span><div><strong>Heat sources</strong> — space heaters too close to combustibles; unattended cooking in break rooms.</div></li>
+          <li><span class="bullet">📦</span><div><strong>Blocked exits</strong> — storage items obstructing fire exits, evacuation routes, or extinguisher access.</div></li>
+        </ul>
+        <ul class="info-list">
+          <li><span class="bullet">🚬</span><div><strong>Improper smoking</strong> — smoking in unauthorized areas or improper disposal of cigarette materials.</div></li>
+          <li><span class="bullet">🗑️</span><div><strong>Waste accumulation</strong> — excessive paper waste or trash near ignition sources or electrical panels.</div></li>
+          <li><span class="bullet">🔧</span><div><strong>Hot work</strong> — welding, cutting, or grinding without proper fire watch protocols or hot work permits.</div></li>
+          <li><span class="bullet">🏭</span><div><strong>Combustible dust</strong> — fine particle accumulation in manufacturing, woodworking, or food processing areas.</div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 6: Home Hazards ═══ -->
+  <div class="slide" id="slide-6">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 6</div>
+      <h2 class="slide-heading">Home Fire Hazards</h2>
+      <div class="slide-divider"></div>
+      <div class="three-col">
+        <div class="card"><div class="card-icon">🍳</div><div class="card-title">Kitchen</div><div class="card-text">Unattended cooking is the #1 cause of home fires. Never leave the stove unsupervised. Keep flammables away from burners.</div></div>
+        <div class="card"><div class="card-icon">🕯️</div><div class="card-title">Open Flames</div><div class="card-text">Unattended candles, fireplaces, and fire pits. Always extinguish candles before leaving a room or going to sleep.</div></div>
+        <div class="card"><div class="card-icon">🔌</div><div class="card-title">Electrical</div><div class="card-text">Overloaded power strips, old wiring, extension cords under rugs. Have wiring inspected by a licensed electrician regularly.</div></div>
+        <div class="card"><div class="card-icon">🧺</div><div class="card-title">Dryer Lint</div><div class="card-text">Clogged dryer lint traps cause thousands of fires annually. Clean the lint trap after every single load.</div></div>
+        <div class="card"><div class="card-icon">🛋️</div><div class="card-title">Smoking</div><div class="card-text">Smoking materials are a leading cause of home fire deaths. Never smoke in bed or near flammable materials.</div></div>
+        <div class="card"><div class="card-icon">♨️</div><div class="card-title">Heating</div><div class="card-text">Space heaters need 3 feet of clearance on all sides. Keep combustibles away from furnaces and radiators.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 7: Prevention ═══ -->
+  <div class="slide" id="slide-7">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 7</div>
+      <h2 class="slide-heading">Fire Prevention Strategies</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col">
+        <div>
+          <div class="col-header navy">🏢 At Work</div>
+          <ul class="info-list">
+            <li><span class="bullet">✅</span>Conduct regular fire risk assessments of your workspace</li>
+            <li><span class="bullet">✅</span>Keep fire exits, extinguishers, and sprinklers unobstructed at all times</li>
+            <li><span class="bullet">✅</span>Store flammable materials in properly labeled, approved containers</li>
+            <li><span class="bullet">✅</span>Participate in fire drills at least once per year as required by OSHA</li>
+            <li><span class="bullet">✅</span>Inspect and test smoke alarms and sprinkler systems on a regular schedule</li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-header gold">🏠 At Home</div>
+          <ul class="info-list">
+            <li><span class="bullet">✅</span>Install smoke alarms on every floor, inside every bedroom — test monthly</li>
+            <li><span class="bullet">✅</span>Create and regularly practice a home escape plan with two exits per room</li>
+            <li><span class="bullet">✅</span>Keep a fire extinguisher in the kitchen and know how to use it</li>
+            <li><span class="bullet">✅</span>Replace smoke alarm batteries at least once a year (or use 10-year batteries)</li>
+            <li><span class="bullet">✅</span>Never leave cooking, candles, or any open flame completely unattended</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 8: Evacuation ═══ -->
+  <div class="slide" id="slide-8">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 8</div>
+      <h2 class="slide-heading">Evacuation Procedures</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col" style="gap:28px;align-items:start;">
+        <div class="evac-steps">
+          <div class="evac-step"><div class="evac-num">1</div><div class="evac-text"><strong>Sound the alarm</strong> — activate the nearest fire alarm pull station immediately.</div></div>
+          <div class="evac-step"><div class="evac-num">2</div><div class="evac-text"><strong>Call 911</strong> — notify emergency services even if you think the fire is small.</div></div>
+          <div class="evac-step"><div class="evac-num">3</div><div class="evac-text"><strong>Close doors</strong> — close (don't lock) doors as you leave to slow the spread of fire and smoke.</div></div>
+          <div class="evac-step"><div class="evac-num">4</div><div class="evac-text"><strong>Use stairs only</strong> — never use elevators during a fire evacuation, ever.</div></div>
+          <div class="evac-step"><div class="evac-num">5</div><div class="evac-text"><strong>Stay low</strong> — crawl if there is smoke; fresh, breathable air stays near the floor.</div></div>
+          <div class="evac-step"><div class="evac-num">6</div><div class="evac-text"><strong>Assembly point</strong> — proceed to your designated meeting area. Do not re-enter the building.</div></div>
+        </div>
+        <div>
+          <div class="callout warning">
+            <p>🚪 <strong>Before opening any door</strong> — feel it with the back of your hand. If it's hot, DO NOT open it. Find an alternative exit or shelter in place.</p>
+          </div>
+          <div class="callout warning" style="margin-top:10px;">
+            <p>🧯 <strong>If trapped</strong> — seal gaps under the door with clothing, signal from a window, and call 911 with your exact location.</p>
+          </div>
+          <div class="callout" style="margin-top:10px;">
+            <p>👥 <strong>Account for everyone</strong> — your Fire Warden should perform a headcount at the assembly point and report any missing persons to first responders immediately.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 9: Emergency Response ═══ -->
+  <div class="slide" id="slide-9">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 9</div>
+      <h2 class="slide-heading">Emergency Response</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col" style="gap:28px;">
+        <div>
+          <div class="col-header navy" style="margin-bottom:12px;">🔥 If You Discover a Fire:</div>
+          <ul class="info-list">
+            <li><span class="bullet">1</span>Stay calm — panic leads to poor decisions and puts others at risk</li>
+            <li><span class="bullet">2</span>Alert others verbally and activate the nearest fire alarm</li>
+            <li><span class="bullet">3</span>Only attempt to extinguish if trained, fire is small, and exit is clear</li>
+            <li><span class="bullet">4</span>Evacuate immediately using the nearest safe, unobstructed exit</li>
+            <li><span class="bullet">5</span>Call 911 from a safe location outside the building</li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-header navy" style="margin-bottom:12px;">🛑 Stop, Drop &amp; Roll:</div>
+          <ul class="info-list">
+            <li><span class="bullet">🛑</span><div><strong>STOP</strong> — do not run if your clothing catches fire. Running fans the flames.</div></li>
+            <li><span class="bullet">⬇️</span><div><strong>DROP</strong> — drop immediately to the ground and cover your face with your hands.</div></li>
+            <li><span class="bullet">🔄</span><div><strong>ROLL</strong> — roll back and forth to smother the flames until they are completely out.</div></li>
+          </ul>
+          <div class="callout" style="margin-top:12px;">
+            <p>🚑 After evacuation, <strong>seek medical attention</strong> immediately for any burns or smoke inhalation — symptoms may not appear right away but can be life-threatening.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 10: OSHA ═══ -->
+  <div class="slide" id="slide-10">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 10</div>
+      <h2 class="slide-heading">OSHA Requirements</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col" style="gap:28px;align-items:start;">
+        <ul class="info-list">
+          <li><span class="bullet">📋</span><div><strong>Fire Prevention Plan <span style="background:var(--navy);color:#fff;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:1px;">29 CFR 1910.38</span></strong> — employers must maintain a written plan detailing fire hazards, control measures, and employee responsibilities.</div></li>
+          <li><span class="bullet">🧯</span><div><strong>Extinguisher Training <span style="background:var(--navy);color:#fff;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:1px;">29 CFR 1910.157</span></strong> — employees expected to use extinguishers must receive hands-on training at least annually.</div></li>
+          <li><span class="bullet">🚪</span><div><strong>Emergency Action Plan <span style="background:var(--navy);color:#fff;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:1px;">29 CFR 1910.38</span></strong> — must include evacuation procedures, alarm systems, and employee accountability procedures.</div></li>
+        </ul>
+        <div>
+          <ul class="info-list">
+            <li><span class="bullet">🔍</span><div><strong>Regular Inspections</strong> — fire extinguishers must be inspected monthly and professionally serviced annually.</div></li>
+            <li><span class="bullet">🏃</span><div><strong>Exit Routes <span style="background:var(--navy);color:#fff;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:3px;letter-spacing:1px;">29 CFR 1910.37</span></strong> — exits must be clearly marked, unobstructed, and properly illuminated at all times.</div></li>
+            <li><span class="bullet">🔔</span><div><strong>Alarm Systems</strong> — fire detection and alarm systems must be tested and maintained on a regular schedule.</div></li>
+          </ul>
+          <div class="callout warning" style="margin-top:12px;">
+            <p>⚠️ Non-compliance with OSHA fire safety standards can result in <strong>significant fines, legal liability, and loss of life</strong>. Annual training is mandatory for all employees.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 11: Key Takeaways ═══ -->
+  <div class="slide" id="slide-11">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Summary</div>
+      <h2 class="slide-heading">Key Takeaways</h2>
+      <div class="slide-divider"></div>
+      <div class="three-col">
+        <div class="card"><div class="card-icon">🔺</div><div class="card-title">Know the Triangle</div><div class="card-text">Fire needs heat, fuel, and oxygen. Remove any one element and you stop the fire. This is the foundation of all fire safety.</div></div>
+        <div class="card"><div class="card-icon">🧯</div><div class="card-title">PASS the Test</div><div class="card-text">Pull. Aim. Squeeze. Sweep. Know how to use a fire extinguisher before an emergency happens.</div></div>
+        <div class="card"><div class="card-icon">🚪</div><div class="card-title">Have a Plan</div><div class="card-text">Know your evacuation routes, assembly point, and Fire Warden. Practice drills at least once a year.</div></div>
+        <div class="card"><div class="card-icon">⚠️</div><div class="card-title">Prevent First</div><div class="card-text">Identify and address hazards before they become fires. Inspect equipment, store chemicals safely, keep exits clear.</div></div>
+        <div class="card"><div class="card-icon">📢</div><div class="card-title">Alert &amp; Evacuate</div><div class="card-text">Sound the alarm first. Call 911. Evacuate everyone. Your safety is the absolute priority — never go back in.</div></div>
+        <div class="card"><div class="card-icon">📚</div><div class="card-title">Stay Trained</div><div class="card-text">Review fire safety annually. Consult OSHA, NFPA, Red Cross, and USFA for updated guidelines and resources.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 12: Emergency Contacts (NEW) ═══ -->
+  <div class="slide" id="slide-12">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 11 — Office Emergency Info</div>
+      <h2 class="slide-heading">Emergency Contacts &amp; Assembly Point</h2>
+      <div class="slide-divider"></div>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">
+        <strong style="color:var(--navy);">For administrators:</strong> Replace the placeholder values below with your office-specific information before uploading to SharePoint.
+      </p>
+      <div class="contacts-grid">
+        <div class="contact-card emergency">
+          <div class="contact-icon">🚨</div>
+          <div>
+            <div class="contact-label">Emergency Services</div>
+            <div class="contact-value">911</div>
+            <div class="contact-desc">Police, Fire &amp; Medical — call from any phone</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">🧯</div>
+          <div>
+            <div class="contact-label">Primary Emergency Contact</div>
+            <div class="contact-value">Maria Fernandez</div>
+            <div class="contact-desc">(213) 765-9426</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-label">Assembly Point</div>
+            <div class="contact-value">South End Parking Lot</div>
+            <div class="contact-desc">Proceed here immediately after evacuation — check in with your floor warden. Do not re-enter.</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">🔒</div>
+          <div>
+            <div class="contact-label">Backup Emergency Contact</div>
+            <div class="contact-value">Rene Vasquez</div>
+            <div class="contact-desc">(213) 765-9417</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">👤</div>
+          <div>
+            <div class="contact-label">NALEO HR / Safety Officer</div>
+            <div class="contact-value">Michael Susi</div>
+            <div class="contact-desc">(213) 765-9454 — for post-incident reporting</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">🏥</div>
+          <div>
+            <div class="contact-label">Nearest Medical Facility</div>
+            <div class="contact-value">Garfield Medical Center</div>
+            <div class="contact-desc">525 N. Garfield Ave., Monterey Park, CA 91754 · (626) 573-2222</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout gold" style="margin-top:14px;">
+        <p>📌 <strong>Save these contacts in your phone</strong> before you need them. During an emergency there is no time to look them up.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 13: Quiz Intro ═══ -->
+  <div class="slide" id="slide-13">
+    <div class="slide-content" style="text-align:center;">
+      <div class="quiz-intro-box">
+        <h1>Knowledge<br><em>Check</em> 🎯</h1>
+        <p>Test what you've learned. Answer all 10 questions carefully — you'll see your score and can print a certificate of completion at the end.</p>
+      </div>
+      <div class="tag-row">
+        <span class="tag">10 Questions</span>
+        <span class="tag">Multiple Choice</span>
+        <span class="tag">Instant Feedback</span>
+        <span class="tag">Scored Results</span>
+        <span class="tag">Printable Certificate</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ QUIZ SLIDES 14–23 ═══ -->
+  <div class="slide" id="slide-14">
+    <div class="quiz-container">
+      <div class="question-number">Question 1 of 10</div>
+      <div class="question-text">What are the three elements that make up the Fire Triangle?</div>
+      <div class="options-list" data-correct="1">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Water, Air, and Electricity</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Heat, Fuel, and Oxygen</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Smoke, Flame, and Carbon Dioxide</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Temperature, Pressure, and Gas</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(14)" id="btn-14" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-15">
+    <div class="quiz-container">
+      <div class="question-number">Question 2 of 10</div>
+      <div class="question-text">What does the "P" in the PASS fire extinguisher method stand for?</div>
+      <div class="options-list" data-correct="2">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Press the handle firmly downward</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Position yourself at a safe distance</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Pull the safety pin</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Point the nozzle at the flames</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(15)" id="btn-15" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-16">
+    <div class="quiz-container">
+      <div class="question-number">Question 3 of 10</div>
+      <div class="question-text">Which fire class covers flammable liquids such as gasoline, oil, and solvents?</div>
+      <div class="options-list" data-correct="0">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Class B</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Class A</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Class C</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Class K</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(16)" id="btn-16" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-17">
+    <div class="quiz-container">
+      <div class="question-number">Question 4 of 10</div>
+      <div class="question-text">When escaping a smoke-filled building, what should you do to access the freshest air?</div>
+      <div class="options-list" data-correct="3">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Run as fast as possible upright toward the exit</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Hold your breath and walk normally</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Cover your head and move toward the windows</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Stay low and crawl to the nearest safe exit</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(17)" id="btn-17" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-18">
+    <div class="quiz-container">
+      <div class="question-number">Question 5 of 10</div>
+      <div class="question-text">What is the #1 cause of home fires in the United States?</div>
+      <div class="options-list" data-correct="1">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Electrical malfunctions and old wiring</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Unattended cooking</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Candles left burning</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Dryer lint buildup</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(18)" id="btn-18" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-19">
+    <div class="quiz-container">
+      <div class="question-number">Question 6 of 10</div>
+      <div class="question-text">When using a fire extinguisher with the PASS method, where should you aim the nozzle?</div>
+      <div class="options-list" data-correct="2">
+        <div class="option" data-index="0"><div class="option-letter">A</div>At the top of the visible flames</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>At the center mass of the fire</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>At the base of the fire</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>At the smoke rising above the fire</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(19)" id="btn-19" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-20">
+    <div class="quiz-container">
+      <div class="question-number">Question 7 of 10</div>
+      <div class="question-text">What should you NEVER do when evacuating during a workplace fire?</div>
+      <div class="options-list" data-correct="3">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Activate the fire alarm pull station</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Evacuate using the nearest safe exit</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Call 911 from outside the building</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Use the elevator to exit the building quickly</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(20)" id="btn-20" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-21">
+    <div class="quiz-container">
+      <div class="question-number">Question 8 of 10</div>
+      <div class="question-text">Under OSHA standard 29 CFR 1910.157, how often must fire extinguisher training be conducted for employees who are expected to use them?</div>
+      <div class="options-list" data-correct="1">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Every five years</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>At least once annually</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Only when the employee is first hired</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Every six months without exception</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(21)" id="btn-21" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-22">
+    <div class="quiz-container">
+      <div class="question-number">Question 9 of 10</div>
+      <div class="question-text">If your clothing catches fire, what is the correct immediate response?</div>
+      <div class="options-list" data-correct="2">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Run to the nearest exit as quickly as possible</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Try to remove the clothing as fast as possible</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Stop, Drop, and Roll on the ground</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Pour water on yourself and run to safety</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(22)" id="btn-22" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-23">
+    <div class="quiz-container">
+      <div class="question-number">Question 10 of 10</div>
+      <div class="question-text">Before opening a closed door during a fire evacuation, what is the most important first step?</div>
+      <div class="options-list" data-correct="0">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Feel the door with the back of your hand to check if it's hot</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Open it quickly to check what's on the other side</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Knock three times to alert others on the other side</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Lock the door from the outside to contain the fire</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(23)" id="btn-23" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 24: Score + Certificate ═══ -->
+  <div class="slide" id="slide-24">
+    <div class="score-screen">
+      <div class="slide-eyebrow" style="text-align:center;">Training Complete · NALEO Educational Fund</div>
+      <div class="score-circle">
+        <div class="score-number" id="scoreNumber">—</div>
+        <div class="score-total">out of 10</div>
+      </div>
+      <h2 class="slide-heading" id="scoreHeading" style="text-align:center;margin-bottom:6px;">Results</h2>
+      <p class="score-message" id="scoreMessage">Here's how you did on the fire safety knowledge check.</p>
+      <div class="score-breakdown">
+        <span class="score-badge badge-correct" id="correctBadge">✅ 0 Correct</span>
+        <span class="score-badge badge-wrong"   id="wrongBadge">❌ 0 Incorrect</span>
+      </div>
+      <div class="callout" style="max-width:500px;margin:14px auto 0;" id="scoreAdviceBox">
+        <p id="scoreAdvice">Thank you for completing the NALEO Fire Safety Training.</p>
+      </div>
+      <div class="score-actions">
+        <button class="action-btn primary"   onclick="restartTraining()">🔄 Restart Training</button>
+        <button class="action-btn secondary" onclick="reviewSlides()">📖 Review Slides</button>
+      </div>
+
+      <!-- Certificate section (shown when score >= 6) -->
+      <div class="cert-section" id="certSection" style="display:none;">
+        <div class="callout" style="max-width:500px;margin:0 auto 14px;">
+          <p>🎓 <strong>Congratulations!</strong> You passed. Enter your full name below to generate and print your certificate of completion.</p>
+        </div>
+        <div class="cert-name-row" style="max-width:500px;margin:0 auto;">
+          <input type="text" class="cert-name-input" id="certNameInput" placeholder="Enter your full name…" oninput="updateCertPreview()">
+          <button class="cert-print-btn" onclick="printCertificate()">🖨️ Print Certificate</button>
+        </div>
+        <!-- Certificate document -->
+        <div class="certificate-doc" id="certDoc">
+          <div class="cert-org-name">NALEO Educational Fund</div>
+          <div class="cert-doc-title">Certificate of Completion</div>
+          <div style="width:60px;height:2px;background:var(--gold);margin:10px auto;border-radius:2px;"></div>
+          <div class="cert-body">This certifies that</div>
+          <div class="cert-name-disp" id="certNameDisp">—</div>
+          <div class="cert-body">has successfully completed the</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--navy);margin:4px 0;">Fire Safety Training Program</div>
+          <div class="cert-details" id="certDetails">Score: — &nbsp;|&nbsp; Date: —</div>
+          <div class="cert-footer">
+            <div class="cert-sig">
+              <div class="cert-sig-val">NALEO Educational Fund</div>
+              <div class="cert-sig-line">Organization</div>
+            </div>
+            <div class="cert-sig">
+              <div class="cert-sig-val" id="certDateDisp">—</div>
+              <div class="cert-sig-line">Date Completed</div>
+            </div>
+            <div class="cert-sig">
+              <div class="cert-sig-val">Workplace Safety Program</div>
+              <div class="cert-sig-line">Training Program</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .presentation -->
+
+<!-- Nav footer -->
+<div class="nav-footer">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Back</button>
+  <div class="nav-dots" id="navDots"></div>
+  <button class="nav-btn primary" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+</div>
+
+<script>
+  // ── Constants ──────────────────────────────────────────────────────────────
+  const TOTAL       = 25;   // slides 0–24
+  const CONTENT     = 14;   // content slides: 0–13 (title through quiz intro)
+  const QUIZ_START  = 14;   // first quiz question slide
+  const SCORE_SLIDE = 24;   // score + certificate slide
+  const STORAGE_KEY = 'naleo_fire_safety_progress';
+
+  const CORRECT_ANSWERS = {
+    14: 1, 15: 2, 16: 0, 17: 3,
+    18: 1, 19: 2, 20: 3, 21: 1,
+    22: 2, 23: 0
+  };
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let current  = 0;
+  let selected = {};  // { slideIndex: choiceIndex }
+  let results  = {};  // { slideIndex: true/false }
+
+  // ── Persistence ────────────────────────────────────────────────────────────
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ current, selected, results }));
+      const ind = document.getElementById('saveIndicator');
+      ind.classList.add('visible');
+      clearTimeout(ind._t);
+      ind._t = setTimeout(() => ind.classList.remove('visible'), 2200);
+    } catch(e) { /* localStorage unavailable (e.g. private browsing) */ }
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      selected = data.selected || {};
+      results  = data.results  || {};
+
+      // Re-apply quiz option styles for any answered questions
+      for (const si in results) {
+        const slideNum = parseInt(si);
+        if (slideNum < QUIZ_START || slideNum >= SCORE_SLIDE) continue;
+        const sel     = selected[si];
+        const correct = CORRECT_ANSWERS[slideNum];
+        const list    = document.querySelector('#slide-' + slideNum + ' .options-list');
+        if (!list) continue;
+        list.querySelectorAll('.option').forEach(opt => {
+          const idx = parseInt(opt.getAttribute('data-index'));
+          if (idx === correct) opt.classList.add('correct');
+          else if (idx === sel && sel !== correct) opt.classList.add('wrong');
+          opt.style.pointerEvents = 'none';
+        });
+        // Update button
+        const btn = document.getElementById('btn-' + slideNum);
+        if (btn) {
+          btn.textContent = results[si] ? '✅ Correct! Continue →' : '❌ Incorrect. Continue →';
+          btn.style.background = results[si]
+            ? 'linear-gradient(135deg,#15803D,#16A34A)'
+            : 'linear-gradient(135deg,#B91C1C,#DC2626)';
+          const sn = slideNum;
+          btn.onclick = () => changeSlide(1);
+          btn.disabled = false;
+        }
+      }
+
+      // Navigate to saved position (but not directly onto score slide)
+      const savedCurrent = Math.min(data.current || 0, SCORE_SLIDE - 1);
+      if (savedCurrent > 0) {
+        const slides = document.querySelectorAll('.slide');
+        slides[0].classList.remove('active');
+        current = savedCurrent;
+        slides[current].classList.add('active');
+      }
+    } catch(e) { /* ignore */ }
+  }
+
+  // ── UI update ──────────────────────────────────────────────────────────────
+  function updateUI() {
+    // Progress bar
+    document.getElementById('progressBar').style.width = ((current + 1) / TOTAL * 100) + '%';
+
+    // Counter label
+    const ctr = document.getElementById('slideCounter');
+    if (current < CONTENT) {
+      ctr.textContent = String(current + 1).padStart(2, '0') + ' / ' + String(CONTENT).padStart(2, '0');
+    } else if (current < SCORE_SLIDE) {
+      ctr.textContent = 'Q' + (current - QUIZ_START + 1) + ' / 10';
+    } else {
+      ctr.textContent = '🏁 Results';
+    }
+
+    // Prev button
+    document.getElementById('prevBtn').disabled = (current === 0);
+
+    // Next button
+    const nxt = document.getElementById('nextBtn');
+    if (current === SCORE_SLIDE) {
+      nxt.style.visibility = 'hidden';
+    } else {
+      nxt.style.visibility = '';
+      if (current >= QUIZ_START && current < SCORE_SLIDE) {
+        nxt.disabled = !selected.hasOwnProperty(current);
+        nxt.textContent = (current === QUIZ_START + 9) ? 'See Results →' : 'Next Question →';
+      } else {
+        nxt.disabled = false;
+        nxt.textContent = (current === CONTENT - 1) ? 'Start Quiz →' : 'Next →';
+      }
+    }
+
+    buildDots();
+  }
+
+  function buildDots() {
+    const c = document.getElementById('navDots');
+    c.innerHTML = '';
+    if (current < CONTENT) {
+      for (let i = 0; i < CONTENT; i++) {
+        const d = document.createElement('div');
+        d.className = 'nav-dot' + (i === current ? ' active' : '');
+        d.onclick = () => goTo(i);
+        c.appendChild(d);
+      }
+    }
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
+  function goTo(idx) {
+    if (idx < 0 || idx >= TOTAL) return;
+    const slides = document.querySelectorAll('.slide');
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current].classList.remove('exit'), 500);
+    current = idx;
+    slides[current].classList.add('active');
+    updateUI();
+    saveProgress();
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next === SCORE_SLIDE) calcScore();
+    goTo(next);
+  }
+
+  // ── Quiz ───────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.options-list').forEach(list => {
+    list.querySelectorAll('.option').forEach(opt => {
+      opt.addEventListener('click', function () {
+        const slideEl = this.closest('.slide');
+        const si = parseInt(slideEl.id.replace('slide-', ''));
+        if (selected.hasOwnProperty(si)) return;
+        list.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        selected[si] = parseInt(this.getAttribute('data-index'));
+        const btn = document.getElementById('btn-' + si);
+        if (btn) btn.disabled = false;
+        updateUI();
+        saveProgress();
+      });
+    });
+  });
+
+  function submitAnswer(si) {
+    if (!selected.hasOwnProperty(si)) return;
+    const sel     = selected[si];
+    const correct = CORRECT_ANSWERS[si];
+    const list    = document.querySelector('#slide-' + si + ' .options-list');
+    list.querySelectorAll('.option').forEach(opt => {
+      const idx = parseInt(opt.getAttribute('data-index'));
+      opt.classList.remove('selected');
+      if (idx === correct) opt.classList.add('correct');
+      else if (idx === sel && sel !== correct) opt.classList.add('wrong');
+      opt.style.pointerEvents = 'none';
+    });
+    results[si] = (sel === correct);
+    const btn = document.getElementById('btn-' + si);
+    btn.textContent = results[si] ? '✅ Correct! Continue →' : '❌ Incorrect. Continue →';
+    btn.style.background = results[si]
+      ? 'linear-gradient(135deg,#15803D,#16A34A)'
+      : 'linear-gradient(135deg,#B91C1C,#DC2626)';
+    btn.onclick = () => changeSlide(1);
+    saveProgress();
+    updateUI();
+  }
+
+  // ── Score ──────────────────────────────────────────────────────────────────
+  function calcScore() {
+    let correct = 0;
+    for (let i = QUIZ_START; i < SCORE_SLIDE; i++) { if (results[i]) correct++; }
+    const wrong = 10 - correct;
+    const pct   = correct * 10;
+
+    document.getElementById('scoreNumber').textContent      = correct;
+    document.getElementById('correctBadge').textContent     = '✅ ' + correct + ' Correct';
+    document.getElementById('wrongBadge').textContent       = '❌ ' + wrong + ' Incorrect';
+
+    let h, m, a, adviceClass;
+    if (pct === 100) {
+      h = 'Perfect Score! 🏆'; m = 'Outstanding — you aced the fire safety quiz!';
+      a = 'You demonstrated expert-level fire safety knowledge. Help build a safer workplace by sharing what you\'ve learned with your colleagues.';
+      adviceClass = '';
+    } else if (pct >= 80) {
+      h = 'Great Job! 🌟'; m = 'You have strong fire safety knowledge.';
+      a = 'Excellent performance! Review the questions you missed and you\'ll be fully prepared for any fire emergency at work or at home.';
+      adviceClass = '';
+    } else if (pct >= 60) {
+      h = 'Good Effort! 👍'; m = 'You\'re on the right track with fire safety.';
+      a = 'Consider reviewing the training slides again — especially the sections on Fire Classes, PASS Method, and Evacuation Procedures. A quick re-read could save a life.';
+      adviceClass = 'gold';
+    } else {
+      h = 'Keep Learning! 📚'; m = 'Fire safety is critical — let\'s strengthen your knowledge.';
+      a = 'Please revisit the full presentation. Focus on the Fire Triangle, Classes of Fire, the PASS method, and evacuation steps. You\'ve got this — try again!';
+      adviceClass = 'warning';
+    }
+
+    document.getElementById('scoreHeading').textContent = h;
+    document.getElementById('scoreMessage').textContent = m;
+    document.getElementById('scoreAdvice').textContent  = a;
+    const box = document.getElementById('scoreAdviceBox');
+    box.className = 'callout' + (adviceClass ? ' ' + adviceClass : '');
+    box.style.maxWidth = '500px'; box.style.margin = '14px auto 0';
+
+    // Show certificate section for passing scores (60%+)
+    const certSec = document.getElementById('certSection');
+    certSec.style.display = (pct >= 60) ? 'block' : 'none';
+    if (pct >= 60) {
+      const today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+      document.getElementById('certDateDisp').textContent = today;
+      document.getElementById('certDetails').textContent  = 'Score: ' + correct + '/10 (' + pct + '%)  ·  Date: ' + today;
+    }
+  }
+
+  // ── Certificate ────────────────────────────────────────────────────────────
+  function updateCertPreview() {
+    const name = document.getElementById('certNameInput').value.trim();
+    document.getElementById('certNameDisp').textContent = name || '—';
+    if (name) {
+      document.getElementById('certDoc').classList.add('visible');
+    }
+  }
+
+  function printCertificate() {
+    const name = document.getElementById('certNameInput').value.trim();
+    if (!name) { alert('Please enter your full name to print the certificate.'); return; }
+    document.getElementById('certNameDisp').textContent = name;
+    document.getElementById('certDoc').classList.add('visible');
+    window.print();
+  }
+
+  // ── Restart ────────────────────────────────────────────────────────────────
+  function restartTraining() {
+    selected = {}; results = {};
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+
+    document.querySelectorAll('.option').forEach(opt => {
+      opt.classList.remove('selected', 'correct', 'wrong');
+      opt.style.pointerEvents = '';
+    });
+    for (let i = QUIZ_START; i < SCORE_SLIDE; i++) {
+      const btn = document.getElementById('btn-' + i);
+      if (btn) {
+        btn.textContent = 'Submit Answer';
+        btn.style.background = '';
+        btn.disabled = true;
+        const si = i;
+        btn.onclick = () => submitAnswer(si);
+      }
+    }
+    // Hide certificate
+    document.getElementById('certSection').style.display = 'none';
+    document.getElementById('certDoc').classList.remove('visible');
+    document.getElementById('certNameInput').value = '';
+    document.getElementById('nextBtn').style.visibility = '';
+    goTo(0);
+  }
+
+  function reviewSlides() { goTo(0); }
+
+  // ── Keyboard navigation ────────────────────────────────────────────────────
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (!document.getElementById('nextBtn').disabled && document.getElementById('nextBtn').style.visibility !== 'hidden') changeSlide(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (!document.getElementById('prevBtn').disabled) changeSlide(-1);
+    }
+  });
+
+  // ── Dark mode ──────────────────────────────────────────────────────────────
+  function toggleDark() {
+    const on = document.getElementById('darkToggle').checked;
+    document.body.classList.toggle('dark', on);
+    document.getElementById('darkIcon').textContent = on ? '🌙' : '☀️';
+    try { localStorage.setItem('naleo_dark_mode', on ? '1' : '0'); } catch(e) {}
+  }
+
+  function initDarkMode() {
+    try {
+      if (localStorage.getItem('naleo_dark_mode') === '1') {
+        document.body.classList.add('dark');
+        document.getElementById('darkToggle').checked = true;
+        document.getElementById('darkIcon').textContent = '🌙';
+      }
+    } catch(e) {}
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  initDarkMode();
+  loadProgress();
+  updateUI();
+</script>
+</body>
+</html>

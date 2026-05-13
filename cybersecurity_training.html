@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cybersecurity Awareness Training — NALEO Educational Fund</title>
+  <style>
+    :root {
+      --navy:        #1B3A6B;
+      --navy-light:  #2A528A;
+      --navy-dark:   #102345;
+      --gold:        #C8A035;
+      --gold-light:  #DDB84A;
+      --cyber:       #0284C7;
+      --cyber-light: #38BDF8;
+      --cyber-bg:    #EFF8FF;
+      --cyber-bdr:   #BAE6FD;
+      --bg:          #F4F6F9;
+      --bg-alt:      #EEF1F6;
+      --white:       #FFFFFF;
+      --border:      #E2E8F0;
+      --text:        #1E293B;
+      --text-2:      #475569;
+      --text-muted:  #6B7280;
+      --green:       #059669;
+      --green-bg:    #ECFDF5;
+      --green-bdr:   #A7F3D0;
+      --red:         #DC2626;
+      --red-bg:      #FEF2F2;
+      --red-bdr:     #FECACA;
+      --red-text:    #B91C1C;
+      --warn-bg:     #FFFBEB;
+      --warn-bdr:    #FDE68A;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Segoe UI', Calibri, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── Progress bar ── */
+    .progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--border); z-index: 200; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--navy), var(--cyber), var(--gold)); transition: width 0.4s ease; width: 0%; }
+
+    /* ── Header ── */
+    .header {
+      position: fixed; top: 3px; left: 0; width: 100%;
+      padding: 10px 28px; display: flex; align-items: center; justify-content: space-between;
+      z-index: 150; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
+    .brand-emblem {
+      background: var(--navy); color: var(--white);
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px;
+      padding: 5px 10px; border-radius: 5px;
+      text-transform: uppercase; line-height: 1.3; text-align: center;
+    }
+    .brand-emblem span { display: block; color: var(--gold); font-size: 0.55rem; letter-spacing: 2px; }
+    .brand-title { font-size: 0.84rem; font-weight: 700; color: var(--navy); line-height: 1.2; }
+    .brand-sub   { font-size: 0.68rem; color: var(--text-muted); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .slide-counter { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 1px; font-weight: 600; }
+    .save-indicator { font-size: 0.65rem; color: var(--green); font-weight: 600; display: none; }
+    .save-indicator.visible { display: block; }
+
+    /* ── Dark mode toggle ── */
+    .dark-toggle { display: flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
+    .dark-toggle input { display: none; }
+    .toggle-track { width: 38px; height: 21px; background: var(--border); border-radius: 11px; position: relative; transition: background 0.25s ease; flex-shrink: 0; }
+    .dark-toggle input:checked + .toggle-track { background: var(--navy); }
+    .toggle-thumb { position: absolute; top: 2.5px; left: 2.5px; width: 16px; height: 16px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 4px rgba(0,0,0,.2); transition: transform 0.25s ease; }
+    .dark-toggle input:checked + .toggle-track .toggle-thumb { transform: translateX(17px); }
+    .toggle-icon { font-size: 0.9rem; line-height: 1; }
+
+    /* ── Presentation ── */
+    .presentation { flex: 1; position: relative; overflow: hidden; padding-top: 60px; padding-bottom: 60px; }
+
+    /* ── Slides ── */
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px 44px;
+      opacity: 0; transform: translateX(60px);
+      transition: opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.4s cubic-bezier(.4,0,.2,1);
+      pointer-events: none; overflow-y: auto;
+    }
+    .slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+    .slide.exit   { opacity: 0; transform: translateX(-60px); }
+    .slide-content { max-width: 1040px; width: 100%; }
+
+    /* ── Title slide ── */
+    .title-hero {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 45%, #1a4a7a 80%, #0c3060 100%);
+      border-radius: 14px; padding: 56px 48px; margin-bottom: 20px;
+      position: relative; overflow: hidden; text-align: center;
+    }
+    .title-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 20% 50%, rgba(2,132,199,.2) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 30%, rgba(200,160,53,.14) 0%, transparent 45%),
+                  radial-gradient(circle at 50% 100%, rgba(255,255,255,.04) 0%, transparent 50%);
+    }
+    .title-eyebrow { font-size: 0.68rem; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 14px; position: relative; }
+    h1.slide-title { font-size: clamp(2.4rem, 5.5vw, 4.2rem); font-weight: 900; color: var(--white); line-height: 1.05; margin-bottom: 16px; position: relative; letter-spacing: -0.5px; }
+    h1.slide-title em { font-style: normal; color: var(--cyber-light); }
+    .slide-subtitle { font-size: 0.95rem; color: rgba(255,255,255,0.82); max-width: 520px; margin: 0 auto 26px; line-height: 1.75; position: relative; }
+    .meta-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+    .meta-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 50px; padding: 6px 16px; font-size: 0.75rem; color: var(--white); font-weight: 500; }
+
+    /* ── Headings ── */
+    .slide-eyebrow { font-size: 0.68rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+    h2.slide-heading { font-size: clamp(1.5rem, 3.2vw, 2.2rem); font-weight: 800; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .slide-divider { width: 44px; height: 3px; background: linear-gradient(90deg, var(--cyber), transparent); margin-bottom: 18px; border-radius: 2px; }
+
+    /* ── Grids ── */
+    .two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+
+    /* ── Cards ── */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--navy), var(--cyber)); }
+    .card-icon  { font-size: 1.5rem; margin-bottom: 8px; }
+    .card-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--navy); text-transform: uppercase; margin-bottom: 5px; }
+    .card-text  { font-size: 0.8rem; color: var(--text-2); line-height: 1.6; }
+
+    /* ── Step cards (numbered) ── */
+    .steps-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-top: 16px; }
+    .step-card  { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 18px 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .step-num   { font-size: 2.6rem; font-weight: 900; color: var(--navy); line-height: 1; }
+    .step-label { font-size: 0.72rem; font-weight: 700; color: var(--cyber); margin: 5px 0 4px; letter-spacing: 1.5px; text-transform: uppercase; }
+    .step-desc  { font-size: 0.73rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── Info list ── */
+    .info-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .info-list li { display: flex; align-items: flex-start; gap: 11px; padding: 10px 14px; background: var(--white); border-radius: 7px; border: 1px solid var(--border); border-left: 3px solid var(--cyber); font-size: 0.82rem; color: var(--text-2); line-height: 1.5; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .info-list li .bullet { font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+    .info-list li.do   { border-left-color: var(--green); }
+    .info-list li.dont { border-left-color: var(--red); }
+
+    /* ── Stat grid ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+    .stat-card   { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 22px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .stat-number { font-size: 2.2rem; font-weight: 900; color: var(--navy); line-height: 1; }
+    .stat-label  { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
+
+    /* ── Callout boxes ── */
+    .callout { background: var(--bg-alt); border: 1px solid var(--border); border-left: 4px solid var(--cyber); border-radius: 8px; padding: 13px 16px; margin-top: 12px; }
+    .callout p { font-size: 0.82rem; color: var(--text-2); line-height: 1.65; }
+    .callout strong { color: var(--navy); }
+    .callout.warning { border-left-color: var(--red); background: var(--red-bg); border-color: var(--red-bdr); }
+    .callout.warning strong { color: var(--red); }
+    .callout.gold { border-left-color: var(--gold); background: var(--warn-bg); border-color: var(--warn-bdr); }
+    .callout.gold strong { color: #92400E; }
+    .callout.success { border-left-color: var(--green); background: var(--green-bg); border-color: var(--green-bdr); }
+    .callout.success strong { color: #065F46; }
+    .callout.cyber { border-left-color: var(--cyber); background: var(--cyber-bg); border-color: var(--cyber-bdr); }
+    .callout.cyber strong { color: var(--cyber); }
+
+    /* ── Do / Don't two-col ── */
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 14px; }
+    .do-col-head   { font-size: 0.75rem; font-weight: 700; color: var(--green); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .dont-col-head { font-size: 0.75rem; font-weight: 700; color: var(--red);   letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+
+    /* ── Phishing spotters ── */
+    .spot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 14px; }
+    .spot-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+    .spot-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--red); }
+    .spot-icon  { font-size: 1.4rem; margin-bottom: 8px; }
+    .spot-title { font-size: 0.74rem; font-weight: 700; color: var(--red); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+    .spot-text  { font-size: 0.78rem; color: var(--text-2); line-height: 1.55; }
+
+    /* ── IT contacts ── */
+    .contacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+    .contact-card  { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; gap: 13px; align-items: flex-start; }
+    .contact-icon  { font-size: 1.7rem; flex-shrink: 0; margin-top: 2px; }
+    .contact-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
+    .contact-value { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .contact-desc  { font-size: 0.76rem; color: var(--text-muted); }
+    .contact-card.urgent { background: var(--navy); border-color: var(--navy); }
+    .contact-card.urgent .contact-label { color: rgba(200,160,53,.9); }
+    .contact-card.urgent .contact-value { color: var(--white); }
+    .contact-card.urgent .contact-desc  { color: rgba(255,255,255,.7); }
+
+    /* ── Col headers ── */
+    .col-header { font-size: 0.76rem; font-weight: 700; margin-bottom: 11px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px; }
+    .col-header.navy  { color: var(--navy); }
+    .col-header.cyber { color: var(--cyber); }
+    .col-header.gold  { color: #92400E; }
+
+    /* ── Quiz ── */
+    .quiz-container  { max-width: 700px; width: 100%; }
+    .question-number { font-size: 0.68rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+    .question-text   { font-size: 1.15rem; font-weight: 700; color: var(--navy); margin-bottom: 20px; line-height: 1.5; }
+    .options-list    { display: flex; flex-direction: column; gap: 9px; }
+    .option {
+      display: flex; align-items: center; gap: 13px;
+      padding: 13px 17px; background: var(--white);
+      border: 1.5px solid var(--border); border-radius: 9px;
+      cursor: pointer; transition: all 0.16s ease;
+      font-size: 0.88rem; color: var(--text-2);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .option:hover    { border-color: var(--cyber); background: var(--cyber-bg); color: var(--cyber); }
+    .option.selected { border-color: var(--navy); background: rgba(27,58,107,.07); color: var(--navy); }
+    .option.correct  { border-color: var(--green); background: var(--green-bg); color: #065F46; pointer-events: none; font-weight: 600; }
+    .option.wrong    { border-color: var(--red); background: var(--red-bg); color: var(--red-text); pointer-events: none; }
+    .option-letter { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.76rem; font-weight: 700; color: var(--navy); flex-shrink: 0; }
+    .quiz-btn { margin-top: 16px; padding: 11px 26px; background: var(--navy); border: none; border-radius: 8px; color: var(--white); font-size: 0.86rem; font-weight: 600; cursor: pointer; transition: all 0.22s ease; letter-spacing: 0.5px; font-family: inherit; }
+    .quiz-btn:hover:not(:disabled) { background: var(--navy-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,58,107,.3); }
+    .quiz-btn:disabled { opacity: 0.42; cursor: not-allowed; transform: none; }
+
+    /* ── Quiz intro ── */
+    .quiz-intro-box { background: linear-gradient(135deg, var(--navy-dark), #0c3060, #1a4a7a); border-radius: 14px; padding: 50px 48px; text-align: center; }
+    .quiz-intro-box h1 { font-size: clamp(2.4rem,6vw,4.2rem); font-weight: 900; color: var(--white); letter-spacing: -0.5px; margin-bottom: 12px; }
+    .quiz-intro-box h1 em { font-style: normal; color: var(--cyber-light); }
+    .quiz-intro-box p { font-size: 0.93rem; color: rgba(255,255,255,.82); max-width: 460px; margin: 0 auto; line-height: 1.75; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+    .tag { padding: 5px 14px; border-radius: 50px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px; background: rgba(27,58,107,.08); color: var(--navy); border: 1px solid rgba(27,58,107,.15); }
+
+    /* ── Score ── */
+    .score-screen  { text-align: center; max-width: 600px; width: 100%; }
+    .score-circle  { width: 148px; height: 148px; border-radius: 50%; border: 4px solid var(--navy); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; background: radial-gradient(circle, rgba(27,58,107,.06), transparent); box-shadow: 0 0 32px rgba(27,58,107,.1); }
+    .score-number  { font-size: 3.4rem; font-weight: 900; color: var(--navy); line-height: 1; }
+    .score-total   { font-size: 0.74rem; color: var(--text-muted); }
+    .score-message { font-size: 0.93rem; color: var(--text-2); margin-bottom: 14px; }
+    .score-breakdown { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+    .score-badge   { padding: 6px 16px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
+    .badge-correct { background: var(--green-bg); color: #065F46; border: 1px solid var(--green-bdr); }
+    .badge-wrong   { background: var(--red-bg);   color: var(--red-text); border: 1px solid var(--red-bdr); }
+    .score-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+    .action-btn    { padding: 10px 22px; border: none; border-radius: 8px; font-size: 0.84rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s ease; }
+    .action-btn.primary   { background: var(--navy); color: var(--white); }
+    .action-btn.primary:hover   { background: var(--navy-light); }
+    .action-btn.secondary { background: var(--white); color: var(--navy); border: 1.5px solid var(--border); }
+    .action-btn.secondary:hover { background: var(--bg-alt); border-color: var(--navy); }
+
+    /* ── Certificate ── */
+    .cert-section    { margin-top: 18px; }
+    .cert-name-row   { display: flex; gap: 8px; }
+    .cert-name-input { flex: 1; padding: 9px 13px; border: 1.5px solid var(--border); border-radius: 7px; font-size: 0.88rem; font-family: inherit; color: var(--text); background: var(--white); }
+    .cert-name-input:focus { outline: none; border-color: var(--navy); }
+    .cert-print-btn  { padding: 9px 18px; background: var(--gold); border: none; border-radius: 7px; color: var(--white); font-weight: 700; font-size: 0.84rem; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .cert-print-btn:hover { background: var(--gold-light); }
+    .certificate-doc {
+      display: none;
+      border: 3px double var(--navy);
+      border-radius: 10px; padding: 32px 36px; margin-top: 14px;
+      background: var(--white); text-align: center;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+    .certificate-doc.visible { display: block; }
+    .cert-org-name  { font-size: 0.72rem; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; font-family: 'Segoe UI', Arial, sans-serif; font-weight: 700; margin-bottom: 6px; }
+    .cert-doc-title { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin: 6px 0; }
+    .cert-body      { font-size: 0.84rem; color: var(--text-2); margin: 10px 0; line-height: 1.9; }
+    .cert-name-disp { font-size: 1.45rem; font-weight: 700; color: var(--navy); border-bottom: 2px solid var(--navy); display: inline-block; padding-bottom: 3px; margin: 8px 0; font-style: italic; min-width: 200px; }
+    .cert-details   { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
+    .cert-footer    { display: flex; justify-content: space-around; margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .cert-sig       { text-align: center; min-width: 130px; }
+    .cert-sig-val   { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .cert-sig-line  { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; border-top: 1px solid var(--border); padding-top: 4px; }
+
+    /* ── Nav footer ── */
+    .nav-footer {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      padding: 11px 32px; display: flex; align-items: center; justify-content: space-between;
+      background: var(--white); border-top: 1px solid var(--border); z-index: 150;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.05);
+    }
+    .nav-btn { display: flex; align-items: center; gap: 7px; padding: 8px 20px; border-radius: 7px; border: 1.5px solid var(--border); background: var(--white); color: var(--text-2); font-size: 0.8rem; cursor: pointer; transition: all 0.18s ease; font-weight: 500; letter-spacing: 0.5px; font-family: inherit; }
+    .nav-btn:hover:not(:disabled) { background: var(--bg-alt); border-color: var(--navy); color: var(--navy); }
+    .nav-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+    .nav-btn.primary { background: var(--navy); border-color: var(--navy); color: var(--white); font-weight: 600; }
+    .nav-btn.primary:hover:not(:disabled) { background: var(--navy-light); border-color: var(--navy-light); }
+    .nav-dots { display: flex; gap: 6px; align-items: center; }
+    .nav-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all 0.2s ease; cursor: pointer; }
+    .nav-dot.active { background: var(--navy); transform: scale(1.4); }
+
+    /* ── Dark mode ── */
+    body.dark {
+      --bg:        #0F1117;
+      --bg-alt:    #1A1D27;
+      --white:     #1E2232;
+      --border:    #2E3350;
+      --text:      #E8EAF2;
+      --text-2:    #A8B2CC;
+      --text-muted:#6B7590;
+      --green-bg:  #0C2518;
+      --green-bdr: #1A4830;
+      --red-bg:    #280F0F;
+      --red-bdr:   #481A1A;
+      --red-text:  #FC8181;
+      --cyber-bg:  #0A1E2E;
+      --cyber-bdr: #0C3454;
+      --warn-bg:   #221800;
+      --warn-bdr:  #5C3D00;
+    }
+    body.dark .callout.gold { background: var(--warn-bg); border-color: var(--warn-bdr); border-left-color: var(--gold); }
+    body.dark .callout.gold strong { color: var(--gold-light); }
+    body.dark .callout.warning { background: var(--red-bg); border-color: var(--red-bdr); }
+    body.dark .callout.success { background: var(--green-bg); border-color: var(--green-bdr); }
+    body.dark .callout.cyber { background: var(--cyber-bg); border-color: var(--cyber-bdr); }
+    body.dark .col-header.gold { color: var(--gold-light); }
+    body.dark .tag { background: rgba(255,255,255,.07); color: var(--text-2); border-color: rgba(255,255,255,.12); }
+    body.dark .option.correct { background: #0C2518; color: #4ADE80; }
+    body.dark .option.wrong   { background: #280F0F; color: #FC8181; }
+    body.dark .badge-correct  { background: #0C2518; color: #4ADE80; border-color: #1A4830; }
+    body.dark .badge-wrong    { background: #280F0F; color: #FC8181; border-color: #481A1A; }
+    body.dark .action-btn.secondary { background: var(--white); }
+    body.dark .certificate-doc { background: #FFFFFF; color: #1E293B; border-color: #1B3A6B; }
+    body.dark .certificate-doc .cert-org-name  { color: #C8A035; }
+    body.dark .certificate-doc .cert-doc-title,
+    body.dark .certificate-doc .cert-name-disp { color: #1B3A6B; }
+    body.dark .certificate-doc .cert-body,
+    body.dark .certificate-doc .cert-sig-val   { color: #334155; }
+    body.dark .certificate-doc .cert-details,
+    body.dark .certificate-doc .cert-sig-line  { color: #6B7280; }
+    body.dark .certificate-doc .cert-footer    { border-color: #E2E8F0; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp .45s ease forwards; }
+
+    /* ── Hero shield illustration ── */
+    @keyframes shieldFloat {
+      0%, 100% { transform: translateY(-50%) translateY(0px); }
+      50%  { transform: translateY(-50%) translateY(-7px); }
+    }
+    @keyframes ringExpand {
+      0%   { transform: scale(0.75); opacity: 0.5; }
+      100% { transform: scale(1.5);  opacity: 0; }
+    }
+    @keyframes lockBlink {
+      0%, 90%, 100% { opacity: 1; }
+      95% { opacity: 0.4; }
+    }
+    .hero-shield-wrap {
+      position: absolute; right: 4%; top: 50%; transform: translateY(-50%);
+      pointer-events: none; z-index: 0;
+      animation: shieldFloat 4s ease-in-out infinite;
+    }
+    .shield-ring-1 { transform-origin: 82px 92px; animation: ringExpand 3s ease-out infinite; }
+    .shield-ring-2 { transform-origin: 82px 92px; animation: ringExpand 3s ease-out infinite 1s; }
+    .shield-ring-3 { transform-origin: 82px 92px; animation: ringExpand 3s ease-out infinite 2s; }
+    .lock-group    { animation: lockBlink 4s ease-in-out infinite 2s; }
+    /* Circuit-board page background */
+    .presentation::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        linear-gradient(rgba(2,132,199,.032) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(2,132,199,.032) 1px, transparent 1px);
+      background-size: 42px 42px;
+    }
+
+    /* ── Print ── */
+    @media print {
+      body * { visibility: hidden !important; }
+      .certificate-doc, .certificate-doc * { visibility: visible !important; }
+      .certificate-doc {
+        position: fixed !important; top: 50% !important; left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 82% !important; display: block !important;
+        box-shadow: none !important; background: #fff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="header">
+  <div class="header-brand">
+    <div class="brand-emblem">NEF<span>NALEO</span></div>
+    <div class="brand-info">
+      <div class="brand-title">Cybersecurity Awareness Training</div>
+      <div class="brand-sub">NALEO Educational Fund · 2026</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="save-indicator" id="saveIndicator">✓ Progress saved</span>
+    <label class="dark-toggle" title="Toggle dark mode">
+      <input type="checkbox" id="darkToggle" onchange="toggleDark()">
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-icon" id="darkIcon">☀️</span>
+    </label>
+    <span class="slide-counter" id="slideCounter">01 / 14</span>
+  </div>
+</div>
+
+<div class="presentation">
+
+  <!-- ═══ SLIDE 0: Title ═══ -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-content" style="text-align:center;">
+      <div class="title-hero">
+        <!-- Animated shield + lock graphic -->
+        <div class="hero-shield-wrap">
+          <svg width="164" height="186" viewBox="0 0 164 186" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Pulse rings -->
+            <circle class="shield-ring-1" cx="82" cy="92" r="52" fill="none" stroke="#38BDF8" stroke-width="0.8" opacity="0.35"/>
+            <circle class="shield-ring-2" cx="82" cy="92" r="52" fill="none" stroke="#38BDF8" stroke-width="0.6" opacity="0.25"/>
+            <circle class="shield-ring-3" cx="82" cy="92" r="52" fill="none" stroke="#38BDF8" stroke-width="0.5" opacity="0.18"/>
+            <!-- Shield outer -->
+            <path d="M82 8L148 33L148 92C148 130 120 162 82 178C44 162 16 130 16 92L16 33Z" fill="rgba(2,132,199,0.10)" stroke="rgba(56,189,248,0.38)" stroke-width="1.2"/>
+            <!-- Shield inner -->
+            <path d="M82 20L136 43L136 92C136 126 112 154 82 168C52 154 28 126 28 92L28 43Z" fill="rgba(2,132,199,0.15)" stroke="rgba(56,189,248,0.55)" stroke-width="1.8"/>
+            <!-- Lock group -->
+            <g class="lock-group">
+              <!-- Lock body -->
+              <rect x="56" y="93" width="52" height="42" rx="6" fill="rgba(56,189,248,0.22)" stroke="#38BDF8" stroke-width="2"/>
+              <!-- Lock shackle -->
+              <path d="M65 93L65 79C65 64 99 64 99 79L99 93" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Keyhole circle -->
+              <circle cx="82" cy="109" r="7" fill="#38BDF8" opacity="0.85"/>
+              <!-- Keyhole stem -->
+              <rect x="78.5" y="115" width="7" height="11" rx="1.5" fill="#38BDF8" opacity="0.85"/>
+            </g>
+            <!-- Circuit lines decorating the edges -->
+            <line x1="16" y1="92" x2="2"   y2="92"  stroke="#38BDF8" stroke-width="1.2" opacity="0.38"/>
+            <line x1="2"  y1="92" x2="2"   y2="64"  stroke="#38BDF8" stroke-width="1.2" opacity="0.38"/>
+            <circle cx="2" cy="64" r="3.5" fill="#38BDF8" opacity="0.38"/>
+            <line x1="16" y1="116" x2="6"  y2="116" stroke="#38BDF8" stroke-width="1.2" opacity="0.28"/>
+            <line x1="6"  y1="116" x2="6"  y2="136" stroke="#38BDF8" stroke-width="1.2" opacity="0.28"/>
+            <circle cx="6" cy="136" r="3" fill="#38BDF8" opacity="0.28"/>
+            <line x1="148" y1="92"  x2="162" y2="92"  stroke="#38BDF8" stroke-width="1.2" opacity="0.38"/>
+            <line x1="162" y1="92"  x2="162" y2="118" stroke="#38BDF8" stroke-width="1.2" opacity="0.38"/>
+            <circle cx="162" cy="118" r="3.5" fill="#38BDF8" opacity="0.38"/>
+            <line x1="148" y1="70"  x2="156" y2="70"  stroke="#38BDF8" stroke-width="1.2" opacity="0.28"/>
+            <line x1="156" y1="70"  x2="156" y2="50"  stroke="#38BDF8" stroke-width="1.2" opacity="0.28"/>
+            <circle cx="156" cy="50" r="3" fill="#38BDF8" opacity="0.28"/>
+            <!-- Tiny dot nodes on shield -->
+            <circle cx="82" cy="33" r="3" fill="#38BDF8" opacity="0.45"/>
+            <circle cx="48" cy="48" r="2.5" fill="#38BDF8" opacity="0.3"/>
+            <circle cx="116" cy="48" r="2.5" fill="#38BDF8" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="title-eyebrow">NALEO Educational Fund · IT Security Program</div>
+        <h1 class="slide-title">Cybersecurity<br><em>Awareness</em> Training</h1>
+        <p class="slide-subtitle">Practical, common-sense skills to protect your Office 365 account, personal email, and NALEO's data from today's most common cyber threats.</p>
+        <div class="meta-badges">
+          <span class="meta-badge">🔒 Office 365 &amp; Personal Email</span>
+          <span class="meta-badge">⏱ ~25 Minutes</span>
+          <span class="meta-badge">📝 10-Question Quiz</span>
+          <span class="meta-badge">📜 Completion Certificate</span>
+        </div>
+      </div>
+      <div class="callout gold" style="max-width:600px;margin:0 auto;">
+        <p>💡 <strong>Tip:</strong> Your progress is automatically saved in your browser. You can close this tab and resume where you left off.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 1: Why It Matters ═══ -->
+  <div class="slide" id="slide-1">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 1</div>
+      <h2 class="slide-heading">Why Cybersecurity Matters</h2>
+      <div class="slide-divider"></div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-number">94%</div><div class="stat-label">of malware is delivered via email (Verizon DBIR)</div></div>
+        <div class="stat-card"><div class="stat-number">$4.45M</div><div class="stat-label">Average cost of a data breach in 2023 (IBM)</div></div>
+        <div class="stat-card"><div class="stat-number">3.4B</div><div class="stat-label">Phishing emails sent every single day worldwide</div></div>
+      </div>
+      <div class="callout cyber" style="margin-top:18px;">
+        <p>🏢 <strong>Nonprofits are high-value targets.</strong> Attackers know nonprofits hold sensitive donor, financial, and constituent data — and often have fewer IT resources to defend against attacks than large corporations.</p>
+      </div>
+      <div class="callout gold" style="margin-top:10px;">
+        <p>✉️ <strong>Your Office 365 account is the front door.</strong> Email is the #1 entry point for cyberattacks. A compromised account can expose all of NALEO's files, contacts, and communications — even those of people you've never emailed directly.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 2: Password Security ═══ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 2</div>
+      <h2 class="slide-heading">Password Security</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col">
+        <div>
+          <div class="col-header navy">🔑 Strong Password Principles</div>
+          <ul class="info-list">
+            <li class="do"><span class="bullet">✅</span><div><strong>Use at least 12–16 characters.</strong> Length beats complexity — "correct-horse-battery-staple" is stronger than "P@ssw0rd!"</div></li>
+            <li class="do"><span class="bullet">✅</span><div><strong>Use a unique password for every account.</strong> If one site is breached, your other accounts stay protected.</div></li>
+            <li class="do"><span class="bullet">✅</span><div><strong>Use a password manager</strong> (Microsoft Edge's built-in manager, Bitwarden, or 1Password) to generate and store strong passwords.</div></li>
+            <li class="do"><span class="bullet">✅</span><div><strong>Change a password immediately</strong> if you suspect it has been exposed — not on a fixed schedule.</div></li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-header" style="color:var(--red);">🚫 What to Avoid</div>
+          <ul class="info-list">
+            <li class="dont"><span class="bullet">❌</span>Using your name, birthday, pet's name, or "NALEO" in your password</li>
+            <li class="dont"><span class="bullet">❌</span>Reusing your work password for personal accounts (Netflix, Gmail, etc.)</li>
+            <li class="dont"><span class="bullet">❌</span>Writing passwords on sticky notes on or near your monitor</li>
+            <li class="dont"><span class="bullet">❌</span>Sharing your password with anyone — including IT staff (real IT never asks for your password)</li>
+            <li class="dont"><span class="bullet">❌</span>Using simple substitutions like "P@ssw0rd" — attackers check these automatically</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout success" style="margin-top:14px;">
+        <p>🛡️ <strong>Pro tip:</strong> Use a passphrase — three or four random words strung together (e.g., "purple-lamp-river-desk"). These are long, memorable, and very hard to crack.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 3: MFA ═══ -->
+  <div class="slide" id="slide-3">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 3</div>
+      <h2 class="slide-heading">Multi-Factor Authentication (MFA)</h2>
+      <div class="slide-divider"></div>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">MFA adds a second layer of protection so that even if your password is stolen, attackers still can't get in.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <div class="step-label">Enter Password</div>
+          <div class="step-desc">Sign in with your username and password as usual.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <div class="step-label">Verify Identity</div>
+          <div class="step-desc">Approve a prompt in the Microsoft Authenticator app — or enter a one-time code.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <div class="step-label">Access Granted</div>
+          <div class="step-desc">You're in. An attacker with just your password cannot pass this step.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-num" style="font-size:2rem;">99.9%</div>
+          <div class="step-label">Attacks Blocked</div>
+          <div class="step-desc">Microsoft reports MFA blocks over 99.9% of automated account-compromise attacks.</div>
+        </div>
+      </div>
+      <div class="callout cyber" style="margin-top:14px;">
+        <p>📱 <strong>How to enable MFA on your Office 365 account:</strong> Go to <strong>aka.ms/mfasetup</strong> and follow the prompts to set up the <strong>Microsoft Authenticator app</strong> on your phone. Takes less than 5 minutes and dramatically improves your account security.</p>
+      </div>
+      <div class="callout warning" style="margin-top:10px;">
+        <p>⚠️ <strong>Never approve an MFA prompt you didn't initiate.</strong> If you receive an unexpected approval request, deny it and change your password immediately — someone has your password and is trying to log in.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 4: Phishing ═══ -->
+  <div class="slide" id="slide-4">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 4</div>
+      <h2 class="slide-heading">Recognizing Phishing Emails</h2>
+      <div class="slide-divider"></div>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:10px;">Phishing emails are designed to trick you into clicking a link, downloading a file, or giving up your credentials. Learn the red flags.</p>
+      <div class="spot-grid">
+        <div class="spot-card">
+          <div class="spot-icon">📧</div>
+          <div class="spot-title">Suspicious Sender</div>
+          <div class="spot-text">The display name says "Microsoft" but the actual email is from a random Gmail or misspelled domain (e.g., micros0ft-support.com).</div>
+        </div>
+        <div class="spot-card">
+          <div class="spot-icon">⏰</div>
+          <div class="spot-title">Urgency &amp; Threats</div>
+          <div class="spot-text">"Your account will be deleted in 24 hours!" Attackers create panic to stop you from thinking critically.</div>
+        </div>
+        <div class="spot-card">
+          <div class="spot-icon">🔗</div>
+          <div class="spot-title">Suspicious Links</div>
+          <div class="spot-text">Hover over any link before clicking. If the actual URL doesn't match what's displayed, don't click it.</div>
+        </div>
+        <div class="spot-card">
+          <div class="spot-icon">📎</div>
+          <div class="spot-title">Unexpected Attachments</div>
+          <div class="spot-text">Unsolicited .zip, .exe, .docm, or .xlsm files can contain malware. Verify with the sender via phone before opening.</div>
+        </div>
+        <div class="spot-card">
+          <div class="spot-icon">💳</div>
+          <div class="spot-title">Requests for Info</div>
+          <div class="spot-text">Legitimate organizations (Microsoft, your bank, NALEO IT) will never ask for your password, SSN, or credit card via email.</div>
+        </div>
+        <div class="spot-card">
+          <div class="spot-icon">✏️</div>
+          <div class="spot-title">Grammar &amp; Branding</div>
+          <div class="spot-text">Poor spelling, odd phrasing, or mismatched logos. Sophisticated attacks may look perfect — don't rely on this alone.</div>
+        </div>
+      </div>
+      <div class="callout success" style="margin-top:12px;">
+        <p>✅ <strong>When in doubt, don't click.</strong> Contact the sender via a known phone number or a separate email — not by replying to the suspicious message.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 5: Safe Email Practices ═══ -->
+  <div class="slide" id="slide-5">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 5</div>
+      <h2 class="slide-heading">Safe Email Practices in Office 365</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col">
+        <ul class="info-list">
+          <li class="do"><span class="bullet">✅</span><div><strong>Report phishing in Outlook:</strong> Use the built-in "Report" button (or Report Message add-in) on any suspicious email. This alerts Microsoft and your IT team.</div></li>
+          <li class="do"><span class="bullet">✅</span><div><strong>Verify unexpected requests:</strong> If a "colleague" emails asking you to transfer funds, buy gift cards, or share files — call them directly to confirm.</div></li>
+          <li class="do"><span class="bullet">✅</span><div><strong>Check email rules regularly:</strong> Go to Outlook Settings → Mail → Rules. If you see auto-forwarding rules you didn't create, report it immediately — attackers add these silently.</div></li>
+          <li class="do"><span class="bullet">✅</span><div><strong>Use the Preview Pane carefully:</strong> Avoid opening emails from unknown senders in full view. Mark as junk and delete.</div></li>
+        </ul>
+        <ul class="info-list">
+          <li class="dont"><span class="bullet">❌</span>Auto-forwarding all NALEO email to a personal Gmail or Yahoo account</li>
+          <li class="dont"><span class="bullet">❌</span>Clicking "Unsubscribe" on suspected spam — this confirms your email is active</li>
+          <li class="dont"><span class="bullet">❌</span>Opening password-protected zip files from unknown senders "to see what's inside"</li>
+          <li class="dont"><span class="bullet">❌</span>Sending sensitive documents (donor lists, financials, SSNs) via regular email — use SharePoint or OneDrive links instead</li>
+          <li class="dont"><span class="bullet">❌</span>Logging into your Office 365 account from a link in an email — always go directly to office.com</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 6: Safe Browsing ═══ -->
+  <div class="slide" id="slide-6">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 6</div>
+      <h2 class="slide-heading">Safe Browsing &amp; Link Safety</h2>
+      <div class="slide-divider"></div>
+      <div class="three-col">
+        <div class="card"><div class="card-icon">🔍</div><div class="card-title">Hover Before You Click</div><div class="card-text">Always hover over a hyperlink to see its real destination in your browser's status bar. If the URL looks odd or doesn't match, don't click.</div></div>
+        <div class="card"><div class="card-icon">🔒</div><div class="card-title">Look for HTTPS</div><div class="card-text">Websites handling login or payment info should start with https:// and show a padlock icon. HTTP without the "S" is unencrypted.</div></div>
+        <div class="card"><div class="card-icon">🧩</div><div class="card-title">Browser Extensions</div><div class="card-text">Only install browser extensions from trusted sources (Chrome Web Store, Microsoft Edge Add-ons). Malicious extensions can steal passwords and session tokens.</div></div>
+        <div class="card"><div class="card-icon">📥</div><div class="card-title">Safe Downloads Only</div><div class="card-text">Only download software from official websites. Never run .exe, .dmg, or .msi files from email attachments or unknown sites.</div></div>
+        <div class="card"><div class="card-icon">🌐</div><div class="card-title">Shortened URLs</div><div class="card-text">Bit.ly and similar links hide the real destination. Use a URL expander (e.g., checkshorturl.com) or avoid clicking entirely.</div></div>
+        <div class="card"><div class="card-icon">📵</div><div class="card-title">Pop-up Warnings</div><div class="card-text">"Your computer is infected! Call 1-800-XXX-XXXX" is always a scam. Close the tab. Never call the number or grant remote access.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 7: Data Protection ═══ -->
+  <div class="slide" id="slide-7">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 7</div>
+      <h2 class="slide-heading">Data Protection &amp; Safe File Sharing</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col">
+        <div>
+          <div class="col-header navy">📁 What Counts as Sensitive Data?</div>
+          <ul class="info-list">
+            <li><span class="bullet">👤</span>Personally Identifiable Information (PII): names, addresses, SSNs, phone numbers</li>
+            <li><span class="bullet">💳</span>Financial information: bank accounts, credit cards, donor payment data</li>
+            <li><span class="bullet">🗳️</span>Constituent and voter data managed by NALEO programs</li>
+            <li><span class="bullet">📊</span>Internal HR records, salaries, and personnel files</li>
+            <li><span class="bullet">📝</span>Contracts, grant agreements, and legal documents</li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-header navy">✅ How to Share Files Safely</div>
+          <ul class="info-list">
+            <li class="do"><span class="bullet">✅</span><div><strong>Use OneDrive or SharePoint links</strong> — share a secure link, not an email attachment. Recipients don't need a copy; you maintain control.</div></li>
+            <li class="do"><span class="bullet">✅</span><div><strong>Set link permissions carefully</strong> — choose "Specific people" over "Anyone with the link" for sensitive files.</div></li>
+            <li class="do"><span class="bullet">✅</span><div><strong>Set expiration dates</strong> on shared links for time-sensitive documents.</div></li>
+            <li class="dont"><span class="bullet">❌</span>Never email sensitive files to personal accounts (Gmail, Yahoo, etc.)</li>
+            <li class="dont"><span class="bullet">❌</span>Never upload NALEO files to personal cloud storage (personal Dropbox, Google Drive)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout cyber" style="margin-top:12px;">
+        <p>🗑️ <strong>Physical data matters too.</strong> Shred printed documents with sensitive information. Don't leave printed reports, mail, or forms visible on your desk when stepping away.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 8: Device & Account Security ═══ -->
+  <div class="slide" id="slide-8">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 8</div>
+      <h2 class="slide-heading">Device &amp; Account Security</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col">
+        <ul class="info-list">
+          <li class="do"><span class="bullet">🔒</span><div><strong>Lock your screen when you step away.</strong> Use Windows + L (PC) or Control + Command + Q (Mac). Even a brief absence is an opportunity.</div></li>
+          <li class="do"><span class="bullet">🔄</span><div><strong>Keep software updated.</strong> Enable automatic updates for Windows/macOS, Office 365, and your browser. Most ransomware exploits unpatched vulnerabilities.</div></li>
+          <li class="do"><span class="bullet">📶</span><div><strong>Use a VPN when working remotely.</strong> Public Wi-Fi at cafés, airports, and hotels is unencrypted. A VPN encrypts your connection so others on the network can't spy on your traffic.</div></li>
+          <li class="do"><span class="bullet">📱</span><div><strong>Secure your phone.</strong> Use a PIN, fingerprint, or Face ID. Your phone receives MFA codes — if someone has it unlocked, they have your second factor.</div></li>
+        </ul>
+        <ul class="info-list">
+          <li class="dont"><span class="bullet">❌</span>Leaving your laptop unattended and unlocked in public spaces</li>
+          <li class="dont"><span class="bullet">❌</span>Plugging unknown USB drives into your work computer — "USB drops" are a known attack method</li>
+          <li class="dont"><span class="bullet">❌</span>Using personal, unmanaged devices to access NALEO files without checking with IT first</li>
+          <li class="dont"><span class="bullet">❌</span>Ignoring software update prompts — "I'll do it later" often means never</li>
+          <li class="dont"><span class="bullet">❌</span>Connecting to public Wi-Fi without a VPN to access work email or sensitive files</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 9: Social Engineering ═══ -->
+  <div class="slide" id="slide-9">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 9</div>
+      <h2 class="slide-heading">Social Engineering &amp; Impersonation</h2>
+      <div class="slide-divider"></div>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:12px;">Social engineering bypasses technology entirely — it targets <strong>you</strong>. Attackers impersonate trusted people to manipulate you into taking an action.</p>
+      <div class="three-col">
+        <div class="card"><div class="card-icon">📞</div><div class="card-title">Vishing (Voice Phishing)</div><div class="card-text">A caller claims to be from Microsoft IT Support, your bank, or the IRS — asking for passwords, remote access, or payment. Hang up. Real IT never calls and asks for your password.</div></div>
+        <div class="card"><div class="card-icon">💼</div><div class="card-title">CEO / Executive Fraud</div><div class="card-text">An email that appears to come from your CEO or a senior leader asks for an urgent wire transfer or gift card purchase. Always verify financial requests via a direct phone call.</div></div>
+        <div class="card"><div class="card-icon">🎭</div><div class="card-title">Pretexting</div><div class="card-text">An attacker creates a fake but plausible scenario ("I'm from HR and need your SSN to update payroll records"). Legitimate requests go through established processes — not cold calls.</div></div>
+      </div>
+      <div class="callout warning" style="margin-top:12px;">
+        <p>🚩 <strong>Trust but verify — always out of band.</strong> If you get an unexpected request (even from a known colleague), hang up and call them back on a number you already have. Do not use any contact info provided in the suspicious message.</p>
+      </div>
+      <div class="callout gold" style="margin-top:10px;">
+        <p>🧠 <strong>It's okay to say "I need to verify this first."</strong> Legitimate requesters will understand. Attackers will pressure you to act immediately — that pressure itself is a red flag.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 10: What To Do If Compromised ═══ -->
+  <div class="slide" id="slide-10">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 10</div>
+      <h2 class="slide-heading">What To Do If You're Compromised</h2>
+      <div class="slide-divider"></div>
+      <div class="two-col" style="gap:28px;align-items:start;">
+        <div>
+          <div class="col-header navy" style="margin-bottom:12px;">🖱️ If You Clicked a Suspicious Link:</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);border-radius:8px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04);">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;">1</div>
+              <div style="font-size:.82rem;color:var(--text-2);"><strong style="color:var(--text);">Don't panic.</strong> Acting fast and calmly is more important than acting perfectly.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);border-radius:8px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04);">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;">2</div>
+              <div style="font-size:.82rem;color:var(--text-2);"><strong style="color:var(--text);">Disconnect from Wi-Fi / ethernet</strong> to prevent malware from spreading or communicating out.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);border-radius:8px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04);">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;">3</div>
+              <div style="font-size:.82rem;color:var(--text-2);"><strong style="color:var(--text);">Call NALEO IT immediately</strong> — do not try to fix it yourself. See the contacts slide for the number.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--white);border-radius:8px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.04);">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;flex-shrink:0;">4</div>
+              <div style="font-size:.82rem;color:var(--text-2);"><strong style="color:var(--text);">Change your passwords</strong> from a different, clean device after IT gives the all-clear.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="col-header navy" style="margin-bottom:12px;">🔑 If Your Password Was Stolen:</div>
+          <ul class="info-list">
+            <li><span class="bullet">1</span>Change the compromised password immediately on a trusted device</li>
+            <li><span class="bullet">2</span>Change passwords on any other account where you reused that same password</li>
+            <li><span class="bullet">3</span>Check your Outlook inbox rules and forwarding settings for unauthorized changes</li>
+            <li><span class="bullet">4</span>Review recent sign-in activity in your Microsoft account (myaccount.microsoft.com → Security)</li>
+            <li><span class="bullet">5</span>Notify NALEO IT and HR so they can monitor for suspicious activity</li>
+          </ul>
+          <div class="callout success" style="margin-top:12px;">
+            <p>🙋 <strong>Reporting an incident is not shameful.</strong> Cyber incidents happen to experts at the best-protected organizations in the world. Reporting quickly limits the damage. Silence is what makes incidents catastrophic.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 11: Key Takeaways ═══ -->
+  <div class="slide" id="slide-11">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Summary</div>
+      <h2 class="slide-heading">Key Takeaways</h2>
+      <div class="slide-divider"></div>
+      <div class="three-col">
+        <div class="card"><div class="card-icon">🔑</div><div class="card-title">Strong, Unique Passwords</div><div class="card-text">Use 12+ characters and never reuse passwords. A password manager makes this easy — you only need to remember one master password.</div></div>
+        <div class="card"><div class="card-icon">📱</div><div class="card-title">Always Use MFA</div><div class="card-text">Enable MFA on your Office 365 account today. It blocks over 99.9% of automated attacks — even if your password is stolen.</div></div>
+        <div class="card"><div class="card-icon">🎣</div><div class="card-title">Think Before You Click</div><div class="card-text">Hover over links, verify senders, and treat urgency as a red flag. When in doubt, call the person directly using a known number.</div></div>
+        <div class="card"><div class="card-icon">📁</div><div class="card-title">Share Safely</div><div class="card-text">Use OneDrive and SharePoint links — not email attachments — for sensitive NALEO files. Never send PII or financials via personal email.</div></div>
+        <div class="card"><div class="card-icon">🔒</div><div class="card-title">Secure Your Devices</div><div class="card-text">Lock your screen, keep software updated, use a VPN on public Wi-Fi, and secure your phone with a strong PIN or biometrics.</div></div>
+        <div class="card"><div class="card-icon">📢</div><div class="card-title">Report Immediately</div><div class="card-text">If something looks wrong, contact NALEO IT right away. Early reporting saves data, money, and reputations. There is no shame in reporting.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 12: IT Contacts ═══ -->
+  <div class="slide" id="slide-12">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 11 — IT Security Contacts</div>
+      <h2 class="slide-heading">NALEO IT Help Desk &amp; Security Contacts</h2>
+      <div class="slide-divider"></div>
+      <p style="color:var(--text-muted);font-size:.82rem;margin-bottom:14px;">
+        If you have a security concern, suspect your account has been compromised, or receive a suspicious email, contact us right away — we're here to help.
+      </p>
+      <div class="contacts-grid">
+        <div class="contact-card urgent">
+          <div class="contact-icon">🚨</div>
+          <div>
+            <div class="contact-label">Report an Active Incident</div>
+            <div class="contact-value">[IT Emergency Line]</div>
+            <div class="contact-desc">Call immediately if you suspect a breach, clicked a phishing link, or your account is compromised</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">🖥️</div>
+          <div>
+            <div class="contact-label">NALEO IT Help Desk</div>
+            <div class="contact-value">(213) 765-9417</div>
+            <div class="contact-desc">rvasquez@naleo.org — for general support requests and questions</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">🔐</div>
+          <div>
+            <div class="contact-label">IT / Security Officer</div>
+            <div class="contact-value">Rene Vasquez</div>
+            <div class="contact-desc">(213) 765-9417 · rvasquez@naleo.org — for security policy questions and incident reporting</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">📧</div>
+          <div>
+            <div class="contact-label">Report Phishing Email</div>
+            <div class="contact-value">rvasquez@naleo.org</div>
+            <div class="contact-desc">Forward suspicious emails here, or use the "Report" button in Outlook</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">👤</div>
+          <div>
+            <div class="contact-label">HR / Safety Officer</div>
+            <div class="contact-value">Michael Susi</div>
+            <div class="contact-desc">(213) 765-9454 — for post-incident HR procedures</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">🌐</div>
+          <div>
+            <div class="contact-label">Self-Service Resources</div>
+            <div class="contact-value">aka.ms/mfasetup</div>
+            <div class="contact-desc">Set up MFA on your Office 365 account — takes under 5 minutes</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout gold" style="margin-top:14px;">
+        <p>📌 <strong>Save the IT Help Desk number in your phone now.</strong> During a cyber incident, you may not be able to look it up safely — have it ready before you need it.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 13: Quiz Intro ═══ -->
+  <div class="slide" id="slide-13">
+    <div class="slide-content" style="text-align:center;">
+      <div class="quiz-intro-box">
+        <h1>Knowledge<br><em>Check</em> 🔐</h1>
+        <p>Test what you've learned. Answer all 10 questions carefully — you'll see your score and can print a certificate of completion at the end.</p>
+      </div>
+      <div class="tag-row">
+        <span class="tag">10 Questions</span>
+        <span class="tag">Multiple Choice</span>
+        <span class="tag">Instant Feedback</span>
+        <span class="tag">Scored Results</span>
+        <span class="tag">Printable Certificate</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ QUIZ SLIDES 14–23 ═══ -->
+  <div class="slide" id="slide-14">
+    <div class="quiz-container">
+      <div class="question-number">Question 1 of 10</div>
+      <div class="question-text">What is the recommended minimum length for a strong, secure password according to current cybersecurity best practices?</div>
+      <div class="options-list" data-correct="2">
+        <div class="option" data-index="0"><div class="option-letter">A</div>6 characters, as long as it includes a symbol</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>8 characters with upper and lowercase letters</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>12 or more characters — length is the most important factor</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Any length is fine if you change it every 30 days</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(14)" id="btn-14" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-15">
+    <div class="quiz-container">
+      <div class="question-number">Question 2 of 10</div>
+      <div class="question-text">According to Microsoft, approximately what percentage of automated account-compromise attacks does Multi-Factor Authentication (MFA) block?</div>
+      <div class="options-list" data-correct="3">
+        <div class="option" data-index="0"><div class="option-letter">A</div>About 25% of attacks</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>About 50% of attacks</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>About 75% of attacks</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Over 99.9% of attacks</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(15)" id="btn-15" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-16">
+    <div class="quiz-container">
+      <div class="question-number">Question 3 of 10</div>
+      <div class="question-text">You receive an email from "microsoft-support@gmail.com" saying your Office 365 account will be suspended in 24 hours unless you click a link to verify. What should you do?</div>
+      <div class="options-list" data-correct="2">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Click the link quickly — account suspension sounds urgent</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Reply to the email asking if it's legitimate</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Report it as phishing in Outlook and do not click any links</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Forward it to a colleague to get a second opinion</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(16)" id="btn-16" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-17">
+    <div class="quiz-container">
+      <div class="question-number">Question 4 of 10</div>
+      <div class="question-text">Before clicking a hyperlink in an email, what is the safest first step?</div>
+      <div class="options-list" data-correct="1">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Check whether the email looks professionally designed</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Hover over the link to preview the actual destination URL in the status bar</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Verify that you recognize the sender's first name</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Open it in a private/incognito browser window</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(17)" id="btn-17" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-18">
+    <div class="quiz-container">
+      <div class="question-number">Question 5 of 10</div>
+      <div class="question-text">Which is the SAFEST way to share a sensitive NALEO document with a colleague?</div>
+      <div class="options-list" data-correct="2">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Attach it to a personal Gmail message so it's outside NALEO's servers</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Send it as an email attachment in Outlook</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Share a secure link via NALEO's OneDrive or SharePoint with "Specific people" permissions</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Upload it to your personal Dropbox and share that link</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(18)" id="btn-18" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-19">
+    <div class="quiz-container">
+      <div class="question-number">Question 6 of 10</div>
+      <div class="question-text">You accidentally clicked a link in a suspicious email and a strange page briefly loaded. What should you do FIRST?</div>
+      <div class="options-list" data-correct="3">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Run a virus scan yourself, then continue working normally</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Restart the computer and hope for the best</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Wait a few days to see if anything unusual happens</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Disconnect from the internet immediately, then contact NALEO IT</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(19)" id="btn-19" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-20">
+    <div class="quiz-container">
+      <div class="question-number">Question 7 of 10</div>
+      <div class="question-text">Which of the following is the strongest indicator that an email may be a phishing attempt?</div>
+      <div class="options-list" data-correct="1">
+        <div class="option" data-index="0"><div class="option-letter">A</div>The email arrives on a weekday during business hours</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>The email creates urgency or threatens negative consequences if you don't act immediately</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>The email contains your correct full name in the greeting</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>The email comes from a familiar company like Microsoft or your bank</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(20)" id="btn-20" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-21">
+    <div class="quiz-container">
+      <div class="question-number">Question 8 of 10</div>
+      <div class="question-text">You receive an unexpected MFA approval request on your Microsoft Authenticator app — but you are not trying to log in. What does this mean and what should you do?</div>
+      <div class="options-list" data-correct="2">
+        <div class="option" data-index="0"><div class="option-letter">A</div>It's a routine security check — approve it to clear the notification</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>It's probably a system glitch — ignore it and it will go away</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Someone has your password and is attempting to log in — deny it and change your password immediately</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Approve it only if the location shown looks familiar</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(21)" id="btn-21" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-22">
+    <div class="quiz-container">
+      <div class="question-number">Question 9 of 10</div>
+      <div class="question-text">Someone calls claiming to be from Microsoft IT Support and asks for your Office 365 password to resolve an urgent account issue. What should you do?</div>
+      <div class="options-list" data-correct="2">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Provide the password — they need it to help you fix the problem</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Give them a temporary password just for this session</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Hang up — legitimate IT staff never ask for your password — then report the call to NALEO IT</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Ask them to send the request in writing via email first</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(22)" id="btn-22" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <div class="slide" id="slide-23">
+    <div class="quiz-container">
+      <div class="question-number">Question 10 of 10</div>
+      <div class="question-text">What is the safest way to access NALEO work files and email when connected to public Wi-Fi at a coffee shop or airport?</div>
+      <div class="options-list" data-correct="1">
+        <div class="option" data-index="0"><div class="option-letter">A</div>Public Wi-Fi is fine as long as the websites you visit use HTTPS</div>
+        <div class="option" data-index="1"><div class="option-letter">B</div>Connect through a VPN to encrypt your traffic before accessing any work systems</div>
+        <div class="option" data-index="2"><div class="option-letter">C</div>Only check email — avoid opening documents and you'll be safe</div>
+        <div class="option" data-index="3"><div class="option-letter">D</div>Use a private/incognito browser window — this hides your activity from others</div>
+      </div>
+      <button class="quiz-btn" onclick="submitAnswer(23)" id="btn-23" disabled>Submit Answer</button>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 24: Score + Certificate ═══ -->
+  <div class="slide" id="slide-24">
+    <div class="score-screen">
+      <div class="slide-eyebrow" style="text-align:center;">Training Complete · NALEO Educational Fund</div>
+      <div class="score-circle">
+        <div class="score-number" id="scoreNumber">—</div>
+        <div class="score-total">out of 10</div>
+      </div>
+      <h2 class="slide-heading" id="scoreHeading" style="text-align:center;margin-bottom:6px;">Results</h2>
+      <p class="score-message" id="scoreMessage">Here's how you did on the cybersecurity knowledge check.</p>
+      <div class="score-breakdown">
+        <span class="score-badge badge-correct" id="correctBadge">✅ 0 Correct</span>
+        <span class="score-badge badge-wrong"   id="wrongBadge">❌ 0 Incorrect</span>
+      </div>
+      <div class="callout" style="max-width:500px;margin:14px auto 0;" id="scoreAdviceBox">
+        <p id="scoreAdvice">Thank you for completing the NALEO Cybersecurity Awareness Training.</p>
+      </div>
+      <div class="score-actions">
+        <button class="action-btn primary"   onclick="restartTraining()">🔄 Restart Training</button>
+        <button class="action-btn secondary" onclick="reviewSlides()">📖 Review Slides</button>
+      </div>
+
+      <div class="cert-section" id="certSection" style="display:none;">
+        <div class="callout success" style="max-width:500px;margin:0 auto 14px;">
+          <p>🎓 <strong>Congratulations!</strong> You passed. Enter your full name below to generate and print your certificate of completion.</p>
+        </div>
+        <div class="cert-name-row" style="max-width:500px;margin:0 auto;">
+          <input type="text" class="cert-name-input" id="certNameInput" placeholder="Enter your full name…" oninput="updateCertPreview()">
+          <button class="cert-print-btn" onclick="printCertificate()">🖨️ Print Certificate</button>
+        </div>
+        <div class="certificate-doc" id="certDoc">
+          <div class="cert-org-name">NALEO Educational Fund</div>
+          <div class="cert-doc-title">Certificate of Completion</div>
+          <div style="width:60px;height:2px;background:#C8A035;margin:10px auto;border-radius:2px;"></div>
+          <div class="cert-body">This certifies that</div>
+          <div class="cert-name-disp" id="certNameDisp">—</div>
+          <div class="cert-body">has successfully completed the</div>
+          <div style="font-size:1rem;font-weight:700;color:#1B3A6B;margin:4px 0;">Cybersecurity Awareness Training Program</div>
+          <div class="cert-details" id="certDetails">Score: — &nbsp;|&nbsp; Date: —</div>
+          <div class="cert-footer">
+            <div class="cert-sig">
+              <div class="cert-sig-val">NALEO Educational Fund</div>
+              <div class="cert-sig-line">Organization</div>
+            </div>
+            <div class="cert-sig">
+              <div class="cert-sig-val" id="certDateDisp">—</div>
+              <div class="cert-sig-line">Date Completed</div>
+            </div>
+            <div class="cert-sig">
+              <div class="cert-sig-val">IT Security Program</div>
+              <div class="cert-sig-line">Training Program</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .presentation -->
+
+<div class="nav-footer">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Back</button>
+  <div class="nav-dots" id="navDots"></div>
+  <button class="nav-btn primary" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+</div>
+
+<script>
+  const TOTAL       = 25;
+  const CONTENT     = 14;
+  const QUIZ_START  = 14;
+  const SCORE_SLIDE = 24;
+  const STORAGE_KEY = 'naleo_cyber_security_progress';
+  const DARK_KEY    = 'naleo_dark_mode_cyber';
+
+  const CORRECT_ANSWERS = {
+    14: 2, 15: 3, 16: 2, 17: 1,
+    18: 2, 19: 3, 20: 1, 21: 2,
+    22: 2, 23: 1
+  };
+
+  let current  = 0;
+  let selected = {};
+  let results  = {};
+
+  // ── Persistence ────────────────────────────────────────────────────────────
+  function saveProgress() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ current, selected, results }));
+      const ind = document.getElementById('saveIndicator');
+      ind.classList.add('visible');
+      clearTimeout(ind._t);
+      ind._t = setTimeout(() => ind.classList.remove('visible'), 2200);
+    } catch(e) {}
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      selected = data.selected || {};
+      results  = data.results  || {};
+      for (const si in results) {
+        const slideNum = parseInt(si);
+        if (slideNum < QUIZ_START || slideNum >= SCORE_SLIDE) continue;
+        const sel     = selected[si];
+        const correct = CORRECT_ANSWERS[slideNum];
+        const list    = document.querySelector('#slide-' + slideNum + ' .options-list');
+        if (!list) continue;
+        list.querySelectorAll('.option').forEach(opt => {
+          const idx = parseInt(opt.getAttribute('data-index'));
+          if (idx === correct) opt.classList.add('correct');
+          else if (idx === sel && sel !== correct) opt.classList.add('wrong');
+          opt.style.pointerEvents = 'none';
+        });
+        const btn = document.getElementById('btn-' + slideNum);
+        if (btn) {
+          btn.textContent = results[si] ? '✅ Correct! Continue →' : '❌ Incorrect. Continue →';
+          btn.style.background = results[si]
+            ? 'linear-gradient(135deg,#065F46,#059669)'
+            : 'linear-gradient(135deg,#B91C1C,#DC2626)';
+          btn.onclick = () => changeSlide(1);
+          btn.disabled = false;
+        }
+      }
+      const savedCurrent = Math.min(data.current || 0, SCORE_SLIDE - 1);
+      if (savedCurrent > 0) {
+        const slides = document.querySelectorAll('.slide');
+        slides[0].classList.remove('active');
+        current = savedCurrent;
+        slides[current].classList.add('active');
+      }
+    } catch(e) {}
+  }
+
+  // ── UI ─────────────────────────────────────────────────────────────────────
+  function updateUI() {
+    document.getElementById('progressBar').style.width = ((current + 1) / TOTAL * 100) + '%';
+    const ctr = document.getElementById('slideCounter');
+    if (current < CONTENT) {
+      ctr.textContent = String(current + 1).padStart(2,'0') + ' / ' + String(CONTENT).padStart(2,'0');
+    } else if (current < SCORE_SLIDE) {
+      ctr.textContent = 'Q' + (current - QUIZ_START + 1) + ' / 10';
+    } else {
+      ctr.textContent = '🏁 Results';
+    }
+    document.getElementById('prevBtn').disabled = (current === 0);
+    const nxt = document.getElementById('nextBtn');
+    if (current === SCORE_SLIDE) {
+      nxt.style.visibility = 'hidden';
+    } else {
+      nxt.style.visibility = '';
+      if (current >= QUIZ_START && current < SCORE_SLIDE) {
+        nxt.disabled = !selected.hasOwnProperty(current);
+        nxt.textContent = (current === QUIZ_START + 9) ? 'See Results →' : 'Next Question →';
+      } else {
+        nxt.disabled = false;
+        nxt.textContent = (current === CONTENT - 1) ? 'Start Quiz →' : 'Next →';
+      }
+    }
+    buildDots();
+  }
+
+  function buildDots() {
+    const c = document.getElementById('navDots');
+    c.innerHTML = '';
+    if (current < CONTENT) {
+      for (let i = 0; i < CONTENT; i++) {
+        const d = document.createElement('div');
+        d.className = 'nav-dot' + (i === current ? ' active' : '');
+        d.onclick = () => goTo(i);
+        c.appendChild(d);
+      }
+    }
+  }
+
+  // ── Navigation ─────────────────────────────────────────────────────────────
+  function goTo(idx) {
+    if (idx < 0 || idx >= TOTAL) return;
+    const slides = document.querySelectorAll('.slide');
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current].classList.remove('exit'), 500);
+    current = idx;
+    slides[current].classList.add('active');
+    updateUI();
+    saveProgress();
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next === SCORE_SLIDE) calcScore();
+    goTo(next);
+  }
+
+  // ── Quiz ───────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.options-list').forEach(list => {
+    list.querySelectorAll('.option').forEach(opt => {
+      opt.addEventListener('click', function () {
+        const si = parseInt(this.closest('.slide').id.replace('slide-',''));
+        if (selected.hasOwnProperty(si)) return;
+        list.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        selected[si] = parseInt(this.getAttribute('data-index'));
+        const btn = document.getElementById('btn-' + si);
+        if (btn) btn.disabled = false;
+        updateUI();
+        saveProgress();
+      });
+    });
+  });
+
+  function submitAnswer(si) {
+    if (!selected.hasOwnProperty(si)) return;
+    const sel     = selected[si];
+    const correct = CORRECT_ANSWERS[si];
+    const list    = document.querySelector('#slide-' + si + ' .options-list');
+    list.querySelectorAll('.option').forEach(opt => {
+      const idx = parseInt(opt.getAttribute('data-index'));
+      opt.classList.remove('selected');
+      if (idx === correct) opt.classList.add('correct');
+      else if (idx === sel && sel !== correct) opt.classList.add('wrong');
+      opt.style.pointerEvents = 'none';
+    });
+    results[si] = (sel === correct);
+    const btn = document.getElementById('btn-' + si);
+    btn.textContent = results[si] ? '✅ Correct! Continue →' : '❌ Incorrect. Continue →';
+    btn.style.background = results[si]
+      ? 'linear-gradient(135deg,#065F46,#059669)'
+      : 'linear-gradient(135deg,#B91C1C,#DC2626)';
+    btn.onclick = () => changeSlide(1);
+    saveProgress();
+    updateUI();
+  }
+
+  // ── Score ──────────────────────────────────────────────────────────────────
+  function calcScore() {
+    let correct = 0;
+    for (let i = QUIZ_START; i < SCORE_SLIDE; i++) { if (results[i]) correct++; }
+    const wrong = 10 - correct;
+    const pct   = correct * 10;
+    document.getElementById('scoreNumber').textContent  = correct;
+    document.getElementById('correctBadge').textContent = '✅ ' + correct + ' Correct';
+    document.getElementById('wrongBadge').textContent   = '❌ ' + wrong + ' Incorrect';
+
+    let h, m, a, adviceClass;
+    if (pct === 100) {
+      h = 'Perfect Score! 🏆'; m = 'Outstanding — you aced the cybersecurity quiz!';
+      a = 'You demonstrated expert-level cybersecurity awareness. You are a valuable line of defense for NALEO. Share these practices with your colleagues!';
+      adviceClass = 'success';
+    } else if (pct >= 80) {
+      h = 'Great Job! 🌟'; m = 'You have strong cybersecurity awareness.';
+      a = 'Excellent performance! Review the questions you missed and you\'ll be well-prepared to protect your accounts and NALEO\'s data from common threats.';
+      adviceClass = '';
+    } else if (pct >= 60) {
+      h = 'Good Effort! 👍'; m = 'You\'re building solid cybersecurity habits.';
+      a = 'Consider reviewing the slides on Phishing, MFA, and Safe Email Practices. These topics cover the most common attack scenarios you\'re likely to face.';
+      adviceClass = 'gold';
+    } else {
+      h = 'Keep Learning! 📚'; m = 'Cybersecurity awareness is critical — let\'s strengthen your knowledge.';
+      a = 'Please revisit the full presentation, especially the modules on Password Security, MFA, Phishing, and What To Do If Compromised. You\'ve got this — try again!';
+      adviceClass = 'warning';
+    }
+    document.getElementById('scoreHeading').textContent = h;
+    document.getElementById('scoreMessage').textContent = m;
+    document.getElementById('scoreAdvice').textContent  = a;
+    const box = document.getElementById('scoreAdviceBox');
+    box.className = 'callout' + (adviceClass ? ' ' + adviceClass : '');
+    box.style.maxWidth = '500px'; box.style.margin = '14px auto 0';
+
+    const certSec = document.getElementById('certSection');
+    certSec.style.display = (pct >= 60) ? 'block' : 'none';
+    if (pct >= 60) {
+      const today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+      document.getElementById('certDateDisp').textContent = today;
+      document.getElementById('certDetails').textContent  = 'Score: ' + correct + '/10 (' + pct + '%)  ·  Date: ' + today;
+    }
+  }
+
+  // ── Certificate ────────────────────────────────────────────────────────────
+  function updateCertPreview() {
+    const name = document.getElementById('certNameInput').value.trim();
+    document.getElementById('certNameDisp').textContent = name || '—';
+    if (name) document.getElementById('certDoc').classList.add('visible');
+  }
+
+  function printCertificate() {
+    const name = document.getElementById('certNameInput').value.trim();
+    if (!name) { alert('Please enter your full name to print the certificate.'); return; }
+    document.getElementById('certNameDisp').textContent = name;
+    document.getElementById('certDoc').classList.add('visible');
+    window.print();
+  }
+
+  // ── Restart ────────────────────────────────────────────────────────────────
+  function restartTraining() {
+    selected = {}; results = {};
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+    document.querySelectorAll('.option').forEach(opt => {
+      opt.classList.remove('selected','correct','wrong');
+      opt.style.pointerEvents = '';
+    });
+    for (let i = QUIZ_START; i < SCORE_SLIDE; i++) {
+      const btn = document.getElementById('btn-' + i);
+      if (btn) {
+        btn.textContent = 'Submit Answer';
+        btn.style.background = '';
+        btn.disabled = true;
+        const si = i;
+        btn.onclick = () => submitAnswer(si);
+      }
+    }
+    document.getElementById('certSection').style.display = 'none';
+    document.getElementById('certDoc').classList.remove('visible');
+    document.getElementById('certNameInput').value = '';
+    document.getElementById('nextBtn').style.visibility = '';
+    goTo(0);
+  }
+
+  function reviewSlides() { goTo(0); }
+
+  // ── Dark mode ──────────────────────────────────────────────────────────────
+  function toggleDark() {
+    const on = document.getElementById('darkToggle').checked;
+    document.body.classList.toggle('dark', on);
+    document.getElementById('darkIcon').textContent = on ? '🌙' : '☀️';
+    try { localStorage.setItem(DARK_KEY, on ? '1' : '0'); } catch(e) {}
+  }
+
+  function initDarkMode() {
+    try {
+      if (localStorage.getItem(DARK_KEY) === '1') {
+        document.body.classList.add('dark');
+        document.getElementById('darkToggle').checked = true;
+        document.getElementById('darkIcon').textContent = '🌙';
+      }
+    } catch(e) {}
+  }
+
+  // ── Keyboard navigation ────────────────────────────────────────────────────
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (!document.getElementById('nextBtn').disabled && document.getElementById('nextBtn').style.visibility !== 'hidden') changeSlide(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (!document.getElementById('prevBtn').disabled) changeSlide(-1);
+    }
+  });
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  initDarkMode();
+  loadProgress();
+  updateUI();
+</script>
+</body>
+</html>
