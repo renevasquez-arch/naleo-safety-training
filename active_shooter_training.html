@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Active Shooter Preparedness Training — NALEO Educational Fund</title>
+  <style>
+    :root {
+      --navy:        #1B3A6B;
+      --navy-light:  #2A528A;
+      --navy-dark:   #102345;
+      --gold:        #C8A035;
+      --gold-light:  #DDB84A;
+      --shooter:     #991B1B;
+      --shooter-lt:  #DC2626;
+      --shooter-bg:  #FFF1F2;
+      --shooter-bdr: #FFE4E6;
+      --bg:          #F4F6F9;
+      --bg-alt:      #EEF1F6;
+      --white:       #FFFFFF;
+      --border:      #E2E8F0;
+      --text:        #1E293B;
+      --text-2:      #475569;
+      --text-muted:  #6B7280;
+      --green:       #16A34A;
+      --green-bg:    #F0FDF4;
+      --green-bdr:   #BBF7D0;
+      --red-bg:      #FEF2F2;
+      --red-bdr:     #FECACA;
+      --red-text:    #B91C1C;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'Segoe UI', Calibri, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ── Progress bar ── */
+    .progress-container { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--border); z-index: 200; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, var(--navy), var(--shooter), var(--gold)); transition: width 0.4s ease; width: 0%; }
+
+    /* ── Header ── */
+    .header {
+      position: fixed; top: 3px; left: 0; width: 100%;
+      padding: 10px 28px; display: flex; align-items: center; justify-content: space-between;
+      z-index: 150; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+    .header-brand { display: flex; align-items: center; gap: 12px; }
+    .brand-emblem {
+      background: var(--navy); color: var(--white);
+      font-size: 0.65rem; font-weight: 800; letter-spacing: 1.5px;
+      padding: 5px 10px; border-radius: 5px;
+      text-transform: uppercase; line-height: 1.3; text-align: center;
+    }
+    .brand-emblem span { display: block; color: var(--gold); font-size: 0.55rem; letter-spacing: 2px; }
+    .brand-title { font-size: 0.84rem; font-weight: 700; color: var(--navy); line-height: 1.2; }
+    .brand-sub { font-size: 0.68rem; color: var(--text-muted); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .slide-counter { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 1px; font-weight: 600; }
+    .save-indicator { font-size: 0.65rem; color: var(--green); font-weight: 600; display: none; }
+    .save-indicator.visible { display: block; }
+
+    /* ── Presentation area ── */
+    .presentation {
+      flex: 1; position: relative; overflow: hidden;
+      padding-top: 60px; padding-bottom: 60px;
+    }
+
+    /* Subtle diagonal stripe page background */
+    .presentation::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent, transparent 20px,
+        rgba(153,27,27,0.018) 20px, rgba(153,27,27,0.018) 21px
+      );
+    }
+
+    /* ── Slides ── */
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px 44px;
+      opacity: 0; transform: translateX(60px);
+      transition: opacity 0.4s cubic-bezier(.4,0,.2,1), transform 0.4s cubic-bezier(.4,0,.2,1);
+      pointer-events: none; overflow-y: auto;
+    }
+    .slide.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+    .slide.exit   { opacity: 0; transform: translateX(-60px); }
+    .slide-content { max-width: 1040px; width: 100%; }
+
+    /* ── Title slide ── */
+    .title-hero {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 55%, #4A1010 100%);
+      border-radius: 14px; padding: 56px 48px; margin-bottom: 20px;
+      position: relative; overflow: hidden; text-align: center;
+    }
+    .title-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 15% 50%, rgba(153,27,27,.3) 0%, transparent 55%),
+                  radial-gradient(circle at 75% 25%, rgba(200,160,53,.08) 0%, transparent 40%);
+    }
+    .hero-alert-wrap {
+      position: absolute; right: 4%; top: 50%; transform: translateY(-50%);
+      pointer-events: none; z-index: 0;
+    }
+    @keyframes pulseRing {
+      0%   { transform: scale(0.6); opacity: 0.7; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    @keyframes shieldPulse {
+      0%,100% { transform: scale(1); }
+      50%     { transform: scale(1.05); }
+    }
+    .alert-shield { animation: shieldPulse 2.5s ease-in-out infinite; }
+    .ring1 { animation: pulseRing 2.4s ease-out infinite;       transform-origin: 60px 60px; }
+    .ring2 { animation: pulseRing 2.4s ease-out infinite 0.8s;  transform-origin: 60px 60px; }
+    .ring3 { animation: pulseRing 2.4s ease-out infinite 1.6s;  transform-origin: 60px 60px; }
+
+    .title-eyebrow { font-size: 0.68rem; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 14px; position: relative; }
+    h1.slide-title { font-size: clamp(2.6rem, 6vw, 4.5rem); font-weight: 900; color: var(--white); line-height: 1.05; margin-bottom: 16px; position: relative; letter-spacing: -0.5px; }
+    h1.slide-title em { font-style: normal; color: #F87171; }
+    .slide-subtitle { font-size: 0.95rem; color: rgba(255,255,255,0.82); max-width: 520px; margin: 0 auto 26px; line-height: 1.75; position: relative; }
+    .meta-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+    .meta-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); border-radius: 50px; padding: 6px 16px; font-size: 0.75rem; color: var(--white); font-weight: 500; }
+
+    /* ── Section eyebrow + heading ── */
+    .slide-eyebrow { font-size: 0.68rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+    h2.slide-heading { font-size: clamp(1.5rem, 3.2vw, 2.2rem); font-weight: 800; color: var(--navy); margin-bottom: 4px; letter-spacing: -0.3px; }
+    .slide-divider { width: 44px; height: 3px; background: linear-gradient(90deg, var(--gold), transparent); margin-bottom: 18px; border-radius: 2px; }
+
+    /* ── Grids ── */
+    .two-col   { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+    .three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+
+    /* ── Cards ── */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--navy), var(--gold)); }
+    .card-icon  { font-size: 1.5rem; margin-bottom: 8px; }
+    .card-title { font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; color: var(--navy); text-transform: uppercase; margin-bottom: 5px; }
+    .card-text  { font-size: 0.8rem; color: var(--text-2); line-height: 1.6; }
+
+    /* ── Info list ── */
+    .info-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .info-list li { display: flex; align-items: flex-start; gap: 11px; padding: 10px 14px; background: var(--white); border-radius: 7px; border: 1px solid var(--border); border-left: 3px solid var(--navy); font-size: 0.82rem; color: var(--text-2); line-height: 1.5; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .info-list li .bullet { font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Stat grid ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+    .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 22px 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .stat-number { font-size: 2.2rem; font-weight: 900; color: var(--shooter); line-height: 1; }
+    .stat-label  { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
+
+    /* ── Callout boxes ── */
+    .callout { background: var(--bg-alt); border: 1px solid var(--border); border-left: 4px solid var(--navy); border-radius: 8px; padding: 13px 16px; margin-top: 12px; }
+    .callout p { font-size: 0.82rem; color: var(--text-2); line-height: 1.65; }
+    .callout strong { color: var(--navy); }
+    .callout.warning { border-left-color: var(--shooter); background: var(--shooter-bg); border-color: var(--shooter-bdr); }
+    .callout.warning p { color: var(--text-2); }
+    .callout.warning strong { color: var(--shooter); }
+    .callout.gold { border-left-color: var(--gold); background: #FFFBEB; border-color: #FDE68A; }
+    .callout.gold strong { color: #92400E; }
+    .callout.green { border-left-color: var(--green); background: var(--green-bg); border-color: var(--green-bdr); }
+    .callout.green strong { color: var(--green); }
+
+    /* ── RHF Cards ── */
+    .rhf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+    .rhf-card { border-radius: 10px; padding: 24px 18px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .rhf-card.run   { background: linear-gradient(135deg, #FFF7ED, #FED7AA); border: 1px solid #FDBA74; }
+    .rhf-card.hide  { background: linear-gradient(135deg, #EFF6FF, #BFDBFE); border: 1px solid #93C5FD; }
+    .rhf-card.fight { background: linear-gradient(135deg, #FFF1F2, #FECACA); border: 1px solid #F87171; }
+    .rhf-word { font-size: 2rem; font-weight: 900; line-height: 1; margin-bottom: 8px; }
+    .rhf-card.run  .rhf-word  { color: #EA580C; }
+    .rhf-card.hide .rhf-word  { color: #2563EB; }
+    .rhf-card.fight .rhf-word { color: #DC2626; }
+    .rhf-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .rhf-desc { font-size: 0.78rem; color: var(--text-2); line-height: 1.5; }
+
+    /* ── Evac steps ── */
+    .evac-steps { display: flex; flex-direction: column; gap: 7px; }
+    .evac-step  { display: flex; align-items: center; gap: 13px; padding: 10px 14px; background: var(--white); border-radius: 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .evac-num   { width: 30px; height: 30px; border-radius: 50%; background: var(--shooter); display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; color: var(--white); flex-shrink: 0; }
+    .evac-text  { font-size: 0.81rem; color: var(--text-2); line-height: 1.4; }
+    .evac-text strong { color: var(--text); }
+
+    /* ── Do / Don't ── */
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .do-box   { background: var(--green-bg); border: 1px solid var(--green-bdr); border-radius: 10px; padding: 18px; }
+    .dont-box { background: var(--red-bg);   border: 1px solid var(--red-bdr);   border-radius: 10px; padding: 18px; }
+    .do-box h4   { color: var(--green); font-size: 0.78rem; font-weight: 700; margin-bottom: 10px; }
+    .dont-box h4 { color: var(--red-text);  font-size: 0.78rem; font-weight: 700; margin-bottom: 10px; }
+    .dd-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .dd-list li { font-size: 0.78rem; color: var(--text-2); display: flex; gap: 8px; line-height: 1.5; }
+    .do-box   .dd-list li::before { content: '✓'; color: var(--green);    font-weight: 700; flex-shrink: 0; }
+    .dont-box .dd-list li::before { content: '✗'; color: var(--red-text); font-weight: 700; flex-shrink: 0; }
+
+    /* ── Warning cards ── */
+    .warning-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .warning-card { background: #FFF7ED; border: 1px solid #FED7AA; border-left: 4px solid #EA580C; border-radius: 8px; padding: 13px 14px; }
+    .warning-card h4 { font-size: 0.75rem; font-weight: 700; color: #EA580C; margin-bottom: 4px; }
+    .warning-card p  { font-size: 0.73rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* ── 911 grid ── */
+    .call-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .call-item { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; align-items: flex-start; gap: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .call-num  { width: 28px; height: 28px; border-radius: 50%; background: var(--shooter); color: var(--white); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; flex-shrink: 0; }
+    .call-item h4 { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .call-item p  { font-size: 0.73rem; color: var(--text-muted); line-height: 1.45; }
+
+    /* ── Emergency contacts ── */
+    .contacts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+    .contact-card  { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; gap: 13px; align-items: flex-start; }
+    .contact-icon  { font-size: 1.7rem; flex-shrink: 0; margin-top: 2px; }
+    .contact-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
+    .contact-value { font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+    .contact-desc  { font-size: 0.76rem; color: var(--text-muted); }
+    .contact-card.emergency { background: var(--navy); border-color: var(--navy); }
+    .contact-card.emergency .contact-label { color: rgba(200,160,53,.9); }
+    .contact-card.emergency .contact-value { color: var(--white); font-size: 1.3rem; }
+    .contact-card.emergency .contact-desc  { color: rgba(255,255,255,.7); }
+
+    /* ── Summary cards ── */
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+    .summary-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .summary-icon  { font-size: 1.4rem; margin-bottom: 6px; }
+    .summary-title { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .summary-text  { font-size: 0.73rem; color: var(--text-2); line-height: 1.5; }
+
+    /* ── Quiz slides ── */
+    .quiz-container  { max-width: 700px; width: 100%; }
+    .question-number { font-size: 0.68rem; letter-spacing: 3px; color: var(--gold); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+    .question-text   { font-size: 1.15rem; font-weight: 700; color: var(--navy); margin-bottom: 20px; line-height: 1.5; }
+    .options-list    { display: flex; flex-direction: column; gap: 9px; }
+    .option {
+      display: flex; align-items: center; gap: 13px;
+      padding: 13px 17px; background: var(--white);
+      border: 1.5px solid var(--border); border-radius: 9px;
+      cursor: pointer; transition: all 0.16s ease;
+      font-size: 0.88rem; color: var(--text-2);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .option:hover          { border-color: var(--shooter); background: var(--shooter-bg); color: var(--shooter); }
+    .option.selected       { border-color: var(--shooter); background: var(--shooter-bg); color: var(--shooter); }
+    .option.correct        { border-color: var(--green); background: var(--green-bg); color: #15803D; pointer-events: none; font-weight: 600; }
+    .option.wrong          { border-color: #DC2626; background: var(--red-bg); color: var(--red-text); pointer-events: none; }
+    .option-letter { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.76rem; font-weight: 700; color: var(--navy); flex-shrink: 0; }
+    .option.correct .option-letter { background: var(--green); color: var(--white); border-color: var(--green); }
+    .option.wrong   .option-letter { background: #DC2626;       color: var(--white); border-color: #DC2626; }
+    .quiz-btn { margin-top: 16px; padding: 11px 26px; background: var(--navy); border: none; border-radius: 8px; color: var(--white); font-size: 0.86rem; font-weight: 600; cursor: pointer; transition: all 0.22s ease; letter-spacing: 0.5px; font-family: inherit; }
+    .quiz-btn:hover:not(:disabled) { background: var(--navy-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,58,107,.3); }
+    .quiz-btn:disabled { opacity: 0.42; cursor: not-allowed; transform: none; }
+
+    /* ── Quiz intro ── */
+    .quiz-intro-box { background: linear-gradient(135deg, var(--navy-dark), var(--navy-light)); border-radius: 14px; padding: 50px 48px; text-align: center; }
+    .quiz-intro-box h1 { font-size: clamp(2.4rem,6vw,4.2rem); font-weight: 900; color: var(--white); letter-spacing: -0.5px; margin-bottom: 12px; }
+    .quiz-intro-box h1 em { font-style: normal; color: var(--gold); }
+    .quiz-intro-box p { font-size: 0.93rem; color: rgba(255,255,255,.82); max-width: 460px; margin: 0 auto; line-height: 1.75; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; }
+    .tag { padding: 5px 14px; border-radius: 50px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px; background: rgba(27,58,107,.08); color: var(--navy); border: 1px solid rgba(27,58,107,.15); }
+
+    /* ── Score slide ── */
+    .score-screen { text-align: center; max-width: 600px; width: 100%; }
+    .score-circle { width: 148px; height: 148px; border-radius: 50%; border: 4px solid var(--shooter); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; background: radial-gradient(circle, rgba(153,27,27,.07), transparent); box-shadow: 0 0 32px rgba(153,27,27,.15); }
+    .score-number  { font-size: 3.4rem; font-weight: 900; color: var(--shooter); line-height: 1; }
+    .score-total   { font-size: 0.74rem; color: var(--text-muted); }
+    .score-message { font-size: 0.93rem; color: var(--text-2); margin-bottom: 14px; }
+    .score-breakdown { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+    .score-badge { padding: 6px 16px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
+    .badge-correct { background: var(--green-bg); color: #15803D; border: 1px solid var(--green-bdr); }
+    .badge-wrong   { background: var(--red-bg);   color: var(--red-text); border: 1px solid var(--red-bdr); }
+    .score-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+    .action-btn { padding: 10px 22px; border: none; border-radius: 8px; font-size: 0.84rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s ease; }
+    .action-btn.primary   { background: var(--navy); color: var(--white); }
+    .action-btn.primary:hover   { background: var(--navy-light); }
+    .action-btn.secondary { background: var(--white); color: var(--navy); border: 1.5px solid var(--border); }
+    .action-btn.secondary:hover { background: var(--bg-alt); border-color: var(--navy); }
+
+    /* ── Certificate ── */
+    .cert-section  { margin-top: 18px; }
+    .cert-label    { font-size: 0.76rem; color: var(--text-muted); margin-bottom: 8px; }
+    .cert-name-row { display: flex; gap: 8px; }
+    .cert-name-input { flex: 1; padding: 9px 13px; border: 1.5px solid var(--border); border-radius: 7px; font-size: 0.88rem; font-family: inherit; color: var(--text); background: var(--white); }
+    .cert-name-input:focus { outline: none; border-color: var(--shooter); }
+    .cert-print-btn { padding: 9px 18px; background: var(--gold); border: none; border-radius: 7px; color: var(--white); font-weight: 700; font-size: 0.84rem; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .cert-print-btn:hover { background: var(--gold-light); }
+
+    /* Certificate document */
+    .certificate-doc {
+      display: none;
+      border: 3px double var(--navy);
+      border-radius: 10px; padding: 32px 36px; margin-top: 14px;
+      background: var(--white); text-align: center;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+    .certificate-doc.visible { display: block; }
+    .cert-org-name  { font-size: 0.72rem; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; font-family: 'Segoe UI', Arial, sans-serif; font-weight: 700; margin-bottom: 6px; }
+    .cert-doc-title { font-size: 1.5rem; font-weight: 700; color: var(--navy); margin: 6px 0; }
+    .cert-body      { font-size: 0.84rem; color: var(--text-2); margin: 10px 0; line-height: 1.9; }
+    .cert-name-disp { font-size: 1.45rem; font-weight: 700; color: var(--shooter); border-bottom: 2px solid var(--shooter); display: inline-block; padding-bottom: 3px; margin: 8px 0; font-style: italic; min-width: 200px; }
+    .cert-details   { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
+    .cert-footer    { display: flex; justify-content: space-around; margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .cert-sig       { text-align: center; min-width: 130px; }
+    .cert-sig-val   { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .cert-sig-line  { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; border-top: 1px solid var(--border); padding-top: 4px; }
+
+    /* ── Nav footer ── */
+    .nav-footer {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      padding: 11px 32px; display: flex; align-items: center; justify-content: space-between;
+      background: var(--white); border-top: 1px solid var(--border); z-index: 150;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.05);
+    }
+    .nav-btn { display: flex; align-items: center; gap: 7px; padding: 8px 20px; border-radius: 7px; border: 1.5px solid var(--border); background: var(--white); color: var(--text-2); font-size: 0.8rem; cursor: pointer; transition: all 0.18s ease; font-weight: 500; letter-spacing: 0.5px; font-family: inherit; }
+    .nav-btn:hover:not(:disabled) { background: var(--bg-alt); border-color: var(--shooter); color: var(--shooter); }
+    .nav-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+    .nav-btn.primary { background: var(--navy); border-color: var(--navy); color: var(--white); font-weight: 600; }
+    .nav-btn.primary:hover:not(:disabled) { background: var(--shooter); border-color: var(--shooter); }
+    .nav-dots { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; max-width: 640px; }
+    .nav-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--border); transition: all 0.2s ease; cursor: pointer; border: none; }
+    .nav-dot.active  { background: var(--shooter); transform: scale(1.4); }
+    .nav-dot.visited { background: var(--text-muted); }
+
+    /* ── Dark mode toggle ── */
+    .dark-toggle { display: flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; }
+    .dark-toggle input { display: none; }
+    .toggle-track { width: 38px; height: 21px; background: var(--border); border-radius: 11px; position: relative; transition: background 0.25s ease; flex-shrink: 0; }
+    .dark-toggle input:checked + .toggle-track { background: var(--shooter); }
+    .toggle-thumb { position: absolute; top: 2.5px; left: 2.5px; width: 16px; height: 16px; border-radius: 50%; background: var(--white); box-shadow: 0 1px 4px rgba(0,0,0,.2); transition: transform 0.25s ease; }
+    .dark-toggle input:checked + .toggle-track .toggle-thumb { transform: translateX(17px); }
+    .toggle-icon { font-size: 0.9rem; line-height: 1; }
+
+    /* ── Dark mode colour overrides ── */
+    body.dark {
+      --bg:          #0F1117;
+      --bg-alt:      #1A1D27;
+      --white:       #1E2232;
+      --border:      #2E3350;
+      --text:        #E8EAF2;
+      --text-2:      #A8B2CC;
+      --text-muted:  #6B7590;
+      --green-bg:    #0C2518;
+      --green-bdr:   #1A4830;
+      --red-bg:      #280F0F;
+      --red-bdr:     #481A1A;
+      --red-text:    #FC8181;
+      --shooter-bg:  #2A0D0D;
+      --shooter-bdr: #4A1A1A;
+    }
+    body.dark .callout.gold { background: #221800; border-color: #5C3D00; border-left-color: var(--gold); }
+    body.dark .callout.gold strong { color: var(--gold-light); }
+    body.dark .callout.warning { background: #280F0F; border-color: #481A1A; }
+    body.dark .callout.green   { background: #0C2518; border-color: #1A4830; }
+    body.dark .tag { background: rgba(255,255,255,.07); color: var(--text-2); border-color: rgba(255,255,255,.12); }
+    body.dark .option.correct { background: #0C2518; color: #4ADE80; }
+    body.dark .option.wrong   { background: #280F0F; color: #FC8181; }
+    body.dark .badge-correct  { background: #0C2518; color: #4ADE80; border-color: #1A4830; }
+    body.dark .badge-wrong    { background: #280F0F; color: #FC8181; border-color: #481A1A; }
+    body.dark .action-btn.secondary { background: var(--white); }
+    body.dark .warning-card { background: #1F1200; border-color: #3D2200; border-left-color: #EA580C; }
+    body.dark .warning-card h4 { color: #FB923C; }
+    body.dark .rhf-card.run   { background: rgba(234,88,12,.12); border-color: rgba(234,88,12,.28); }
+    body.dark .rhf-card.hide  { background: rgba(37,99,235,.12);  border-color: rgba(37,99,235,.28); }
+    body.dark .rhf-card.fight { background: rgba(220,38,38,.12);  border-color: rgba(220,38,38,.28); }
+    /* Certificate always prints on white */
+    body.dark .certificate-doc { background: #FFFFFF; color: #1E293B; border-color: #1B3A6B; }
+    body.dark .certificate-doc .cert-org-name  { color: #C8A035; }
+    body.dark .certificate-doc .cert-doc-title { color: #1B3A6B; }
+    body.dark .certificate-doc .cert-name-disp { color: #991B1B; border-color: #991B1B; }
+    body.dark .certificate-doc .cert-body,
+    body.dark .certificate-doc .cert-sig-val   { color: #334155; }
+    body.dark .certificate-doc .cert-details,
+    body.dark .certificate-doc .cert-sig-line  { color: #6B7280; }
+    body.dark .certificate-doc .cert-footer    { border-color: #E2E8F0; }
+
+    /* ── Print ── */
+    @media print {
+      body * { visibility: hidden !important; }
+      .certificate-doc, .certificate-doc * { visibility: visible !important; }
+      .certificate-doc {
+        position: fixed !important; top: 50% !important; left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 82% !important; display: block !important;
+        box-shadow: none !important;
+        background: #fff !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Progress -->
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-brand">
+    <div class="brand-emblem">NEF<span>NALEO</span></div>
+    <div class="brand-info">
+      <div class="brand-title">Active Shooter Preparedness</div>
+      <div class="brand-sub">NALEO Educational Fund · 2026</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="save-indicator" id="saveIndicator">✓ Progress saved</span>
+    <label class="dark-toggle" title="Toggle dark mode">
+      <input type="checkbox" id="darkToggle" onchange="toggleDark()">
+      <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      <span class="toggle-icon" id="darkIcon">☀️</span>
+    </label>
+    <span class="slide-counter" id="slideCounter">01 / 25</span>
+  </div>
+</div>
+
+<!-- Presentation -->
+<div class="presentation">
+
+  <!-- ═══ SLIDE 0: Title ═══ -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-content" style="text-align:center;">
+      <div class="title-hero">
+        <!-- Animated alert shield -->
+        <div class="hero-alert-wrap">
+          <svg width="200" height="200" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="ring1" cx="60" cy="60" r="40" stroke="rgba(220,38,38,0.5)"  stroke-width="2" fill="none"/>
+            <circle class="ring2" cx="60" cy="60" r="40" stroke="rgba(220,38,38,0.35)" stroke-width="2" fill="none"/>
+            <circle class="ring3" cx="60" cy="60" r="40" stroke="rgba(220,38,38,0.2)"  stroke-width="2" fill="none"/>
+            <g class="alert-shield">
+              <path d="M60 14 L92 28 L92 57 C92 75 77 87 60 93 C43 87 28 75 28 57 L28 28 Z" fill="rgba(153,27,27,0.92)" stroke="rgba(248,113,113,0.7)" stroke-width="1.5"/>
+              <rect x="57" y="36" width="6" height="26" rx="3" fill="white"/>
+              <circle cx="60" cy="72" r="4" fill="white"/>
+            </g>
+          </svg>
+        </div>
+        <div class="title-eyebrow">NALEO Educational Fund · Safety &amp; Preparedness Program</div>
+        <h1 class="slide-title">Active Shooter<br><em>Preparedness</em> Training</h1>
+        <p class="slide-subtitle">Essential knowledge and skills to protect yourself and your colleagues in a workplace active shooter situation. Preparedness saves lives.</p>
+        <div class="meta-badges">
+          <span class="meta-badge">🏢 Workplace Safety</span>
+          <span class="meta-badge">⏱ ~45 Minutes</span>
+          <span class="meta-badge">📝 10-Question Quiz</span>
+          <span class="meta-badge">📜 Completion Certificate</span>
+        </div>
+      </div>
+      <div class="callout gold" style="max-width:600px;margin:0 auto;">
+        <p>💡 <strong>Tip:</strong> Your progress is automatically saved in your browser. You can close this tab and resume where you left off.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 1: Why This Training Matters ═══ -->
+  <div class="slide" id="slide-1">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 1</div>
+      <h2 class="slide-heading">Why This Training Matters</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:4px;">Active shooter incidents can occur anywhere, including workplaces. Understanding how to respond can mean the difference between life and death.</p>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-number">61%</div><div class="stat-label">of active shooter incidents end before police arrive on scene</div></div>
+        <div class="stat-card"><div class="stat-number">300+</div><div class="stat-label">active shooter incidents occur in the U.S. each year</div></div>
+        <div class="stat-card"><div class="stat-number">2–5 min</div><div class="stat-label">average duration of an active shooter event</div></div>
+      </div>
+      <div class="callout" style="margin-top:18px;">
+        <p>🔑 <strong>Source: FBI Active Shooter Study</strong> — Workplaces, schools, and houses of worship are the most common locations. Being prepared dramatically improves survival outcomes.</p>
+      </div>
+      <div class="callout gold" style="margin-top:10px;">
+        <p>🎯 <strong>Your role:</strong> You don't need to be a hero. You need to know three things: <strong>Run. Hide. Fight.</strong> This training will teach you exactly what each means and when to use it.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 2: Run. Hide. Fight. Overview ═══ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 2</div>
+      <h2 class="slide-heading">Run. Hide. Fight.™</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:4px;">Developed by the U.S. Department of Homeland Security, <strong style="color:var(--navy);">Run. Hide. Fight.</strong> is the nationally recognized response framework — three options in order of preference.</p>
+      <div class="rhf-grid">
+        <div class="rhf-card run">
+          <div class="rhf-icon">🏃</div>
+          <div class="rhf-word">RUN</div>
+          <div class="rhf-desc">Evacuate immediately if there is an accessible escape path. This is always your best option.</div>
+        </div>
+        <div class="rhf-card hide">
+          <div class="rhf-icon">🚪</div>
+          <div class="rhf-word">HIDE</div>
+          <div class="rhf-desc">If you cannot run safely, find a secure hiding place. Lock doors, silence your phone, stay out of sight.</div>
+        </div>
+        <div class="rhf-card fight">
+          <div class="rhf-icon">✊</div>
+          <div class="rhf-word">FIGHT</div>
+          <div class="rhf-desc">Only as a last resort. If your life is in imminent danger, act aggressively to incapacitate the shooter.</div>
+        </div>
+      </div>
+      <div class="callout warning" style="margin-top:16px;">
+        <p>⚠️ <strong>Important:</strong> These options are not always sequential. Assess your situation and choose the safest option available to you <em>right now</em>. Conditions change rapidly.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 3: RUN ═══ -->
+  <div class="slide" id="slide-3">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 3</div>
+      <h2 class="slide-heading">🏃 RUN — Evacuate First</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:12px;">Running is your best option when a safe escape path is available. Do not hesitate — every second counts.</p>
+      <div class="evac-steps">
+        <div class="evac-step"><div class="evac-num">1</div><div class="evac-text"><strong>Have an escape route in mind</strong> — Know the exits in your building before an incident occurs. Identify at least two routes from your workspace today.</div></div>
+        <div class="evac-step"><div class="evac-num">2</div><div class="evac-text"><strong>Leave your belongings behind</strong> — Do not stop to gather your purse, laptop, phone, or personal items. Your life is more important than your belongings.</div></div>
+        <div class="evac-step"><div class="evac-num">3</div><div class="evac-text"><strong>Help others escape if possible — but don't wait</strong> — Warn others as you go, but do not let their hesitation prevent your escape. You cannot help anyone if you become a victim too.</div></div>
+        <div class="evac-step"><div class="evac-num">4</div><div class="evac-text"><strong>Keep your hands visible</strong> — When exiting, raise your hands with fingers spread so law enforcement can clearly see you are not a threat.</div></div>
+      </div>
+      <div class="callout warning" style="margin-top:12px;">
+        <p>🚨 <strong>Do not pull the fire alarm to evacuate</strong> — this may cause others to walk directly into the danger zone. Warn people verbally and directly as you pass them.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 4: HIDE ═══ -->
+  <div class="slide" id="slide-4">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 4</div>
+      <h2 class="slide-heading">🚪 HIDE — Shelter in Place</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:12px;">If running is not safely possible, find a secure location to hide. Your hiding place should be out of the shooter's view and provide physical protection.</p>
+      <div class="do-dont">
+        <div class="do-box">
+          <h4>✓ DO</h4>
+          <ul class="dd-list">
+            <li>Lock and barricade the door with heavy furniture</li>
+            <li>Turn off lights to appear unoccupied</li>
+            <li>Silence your phone completely (vibrate is not silent)</li>
+            <li>Stay away from doors and windows</li>
+            <li>Get behind solid objects (desks, filing cabinets)</li>
+            <li>Text 911 if you cannot safely speak</li>
+            <li>Stay hidden until law enforcement gives all-clear</li>
+          </ul>
+        </div>
+        <div class="dont-box">
+          <h4>✗ DON'T</h4>
+          <ul class="dd-list">
+            <li>Hide in groups in open hallways or lobbies</li>
+            <li>Open the door for anyone — even someone claiming to be police</li>
+            <li>Yell, make noise, or use flashlights visible under the door</li>
+            <li>Stand near windows or glass walls</li>
+            <li>Use elevators to escape</li>
+            <li>Assume the fire alarm means it's safe to leave</li>
+            <li>Leave your hiding spot until officially cleared</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:12px;">
+        <p>💡 <strong>Barricade tip:</strong> Use everything available — desks, chairs, bookshelves, filing cabinets. Even a belt looped through a door closer arm can prevent entry.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 5: FIGHT ═══ -->
+  <div class="slide" id="slide-5">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 5</div>
+      <h2 class="slide-heading">✊ FIGHT — Last Resort Only</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:4px;">Fighting is only appropriate when you have no other option and your life is in imminent danger. If you must fight, commit fully — hesitation can be fatal.</p>
+      <div class="callout warning" style="margin-bottom:14px;">
+        <p>⚠️ <strong>Only use this option when:</strong> You cannot run, you cannot hide, and the shooter is about to engage you directly.</p>
+      </div>
+      <div class="three-col">
+        <div class="card"><div class="card-icon">🎯</div><div class="card-title">Act with Aggression</div><div class="card-text">Commit fully to stopping the threat. Yell, throw objects, rush the shooter. Hesitation is dangerous — act decisively.</div></div>
+        <div class="card"><div class="card-icon">🔧</div><div class="card-title">Use Improvised Weapons</div><div class="card-text">Fire extinguishers, chairs, laptops, scissors, hot coffee — anything within reach can be used as a defensive weapon.</div></div>
+        <div class="card"><div class="card-icon">👥</div><div class="card-title">Work as a Team</div><div class="card-text">Multiple people acting together are far more effective. Distract, swarm, and disarm simultaneously. Coordinate with others.</div></div>
+      </div>
+      <div class="callout green" style="margin-top:14px;">
+        <p>✅ <strong>Research shows:</strong> Unarmed civilians successfully stopped active shooters in multiple documented incidents by acting decisively together. Your actions matter.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 6: Calling 911 ═══ -->
+  <div class="slide" id="slide-6">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 6</div>
+      <h2 class="slide-heading">📞 Calling 911</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:12px;">Call 911 as soon as it is safe to do so. The information you provide helps law enforcement respond faster and more effectively.</p>
+      <div class="call-grid">
+        <div class="call-item"><div class="call-num">1</div><div><h4>Your Location</h4><p>Building name, floor, and specific area. "I'm on the 3rd floor, east conference room."</p></div></div>
+        <div class="call-item"><div class="call-num">2</div><div><h4>Number of Shooters</h4><p>How many shooters you saw or heard. If unknown, say so clearly.</p></div></div>
+        <div class="call-item"><div class="call-num">3</div><div><h4>Physical Description</h4><p>Clothing color, height, hair, and any distinguishing features of the shooter.</p></div></div>
+        <div class="call-item"><div class="call-num">4</div><div><h4>Weapons Description</h4><p>Type of weapon if seen — handgun, rifle, etc. Number of weapons observed.</p></div></div>
+        <div class="call-item"><div class="call-num">5</div><div><h4>Last Known Location</h4><p>Where you last saw or heard the shooter and which direction they were moving.</p></div></div>
+        <div class="call-item"><div class="call-num">6</div><div><h4>Number of Victims</h4><p>How many people appear injured and their location if known.</p></div></div>
+      </div>
+      <div class="callout" style="margin-top:12px;">
+        <p>💡 <strong>If you cannot speak:</strong> Text 911 (available in most jurisdictions). If you dial and cannot speak, leave the line open — dispatchers are trained to listen and trace your location.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 7: When Law Enforcement Arrives ═══ -->
+  <div class="slide" id="slide-7">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 7</div>
+      <h2 class="slide-heading">🚔 When Law Enforcement Arrives</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:12px;">The arrival of law enforcement can be chaotic and frightening. Officers are focused on neutralizing the threat first — knowing how to behave keeps you safe.</p>
+      <div class="evac-steps">
+        <div class="evac-step"><div class="evac-num">1</div><div class="evac-text"><strong>Keep your hands visible at all times</strong> — Raise your hands, spread your fingers, and keep them in plain view. Do not reach for anything — including your ID or phone.</div></div>
+        <div class="evac-step"><div class="evac-num">2</div><div class="evac-text"><strong>Follow all instructions immediately</strong> — Do exactly what officers say without hesitation. Drop to the floor if instructed. Officers cannot distinguish victims from threats until the scene is secured.</div></div>
+        <div class="evac-step"><div class="evac-num">3</div><div class="evac-text"><strong>Do not grab officers or block their path</strong> — Officers must move quickly to neutralize the threat. Let them pass — even if you are injured, seek help after the scene is secure.</div></div>
+        <div class="evac-step"><div class="evac-num">4</div><div class="evac-text"><strong>Put down any weapon immediately</strong> — If you fought off the shooter and have their weapon, put it down the moment law enforcement enters. Do not be holding it when they arrive.</div></div>
+        <div class="evac-step"><div class="evac-num">5</div><div class="evac-text"><strong>Wait for the official all-clear</strong> — Do not leave your hiding spot until law enforcement gives an explicit verbal all-clear. First officers on scene are focused on the threat, not evacuation.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 8: Recognizing Warning Signs ═══ -->
+  <div class="slide" id="slide-8">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 8</div>
+      <h2 class="slide-heading">⚠️ Recognizing Warning Signs</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:12px;">Most active shooters do not "snap" without warning. Research shows that in most cases, someone observed concerning behavior beforehand. <strong style="color:var(--navy);">Knowing the signs can prevent an incident.</strong></p>
+      <div class="warning-grid">
+        <div class="warning-card"><h4>Verbal Threats</h4><p>Direct or indirect threats of violence toward coworkers, supervisors, or the organization.</p></div>
+        <div class="warning-card"><h4>Sudden Behavioral Changes</h4><p>Dramatic mood shifts, increased aggression, withdrawal from colleagues, or unpredictable outbursts.</p></div>
+        <div class="warning-card"><h4>Obsession with Violence</h4><p>Fascination with past shootings, weapons, or violent ideologies. Glorifying or identifying with perpetrators.</p></div>
+        <div class="warning-card"><h4>Expression of Grievances</h4><p>Strong feelings of being wronged or persecuted — especially with expressions of wanting revenge.</p></div>
+        <div class="warning-card"><h4>Giving Things Away</h4><p>Unexpectedly giving away personal items or saying goodbye in a way that seems unusually final.</p></div>
+        <div class="warning-card"><h4>Increased Isolation</h4><p>Withdrawing from social activities, friends, and coworkers. Declining participation in team activities.</p></div>
+      </div>
+      <div class="callout" style="margin-top:12px;">
+        <p>💡 <strong>Important:</strong> No single warning sign means someone will become violent. But combinations of these behaviors — especially with a specific target or plan — warrant immediate reporting.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 9: If You See Something ═══ -->
+  <div class="slide" id="slide-9">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 9</div>
+      <h2 class="slide-heading">👁 If You See Something, Say Something</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:4px;">Reporting concerns early is the most powerful tool for preventing workplace violence. You are not "getting someone in trouble" — you may be saving lives.</p>
+      <div class="three-col">
+        <div class="card"><div class="card-icon">🗣️</div><div class="card-title">Report to Management or HR</div><div class="card-text">If you observe concerning behavior from a coworker, report it to your supervisor, HR, or safety officer immediately. You can do so anonymously.</div></div>
+        <div class="card"><div class="card-icon">🚨</div><div class="card-title">Call 911 for Imminent Threats</div><div class="card-text">If someone makes a specific, credible threat — "I'm going to bring a gun tomorrow" — call 911 immediately. Do not wait to see if it was a joke.</div></div>
+        <div class="card"><div class="card-icon">📝</div><div class="card-title">Document What You Observed</div><div class="card-text">Write down exactly what was said or done, when, where, and who was present. Specific details help HR and law enforcement assess the threat accurately.</div></div>
+      </div>
+      <div class="callout warning" style="margin-top:14px;">
+        <p>⚠️ <strong>Common barrier:</strong> Many people hesitate to report because they fear being wrong. Research from the FBI shows that in most mass shooting cases, warning signs were observed by someone who did not report them in time.</p>
+      </div>
+      <div class="callout gold" style="margin-top:10px;">
+        <p>🏛️ <strong>NALEO policy:</strong> All reports of concerning behavior are taken seriously, investigated promptly, and kept confidential. There is no penalty for reporting in good faith.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 10: After the Incident ═══ -->
+  <div class="slide" id="slide-10">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 10</div>
+      <h2 class="slide-heading">🩹 After the Incident</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:12px;">Once the scene is secured by law enforcement, there are important steps to follow for reunification, medical care, and recovery.</p>
+      <div class="evac-steps">
+        <div class="evac-step"><div class="evac-num">1</div><div class="evac-text"><strong>Proceed to the assembly point</strong> — South End Parking Lot. Check in with your floor warden so all staff are accounted for.</div></div>
+        <div class="evac-step"><div class="evac-num">2</div><div class="evac-text"><strong>Seek medical attention</strong> — Even if you feel uninjured, adrenaline can mask pain. Report any injuries to first responders. Nearest facility: Garfield Medical Center, (626) 573-2222.</div></div>
+        <div class="evac-step"><div class="evac-num">3</div><div class="evac-text"><strong>Do not return to the building</strong> — Wait for law enforcement and building management to officially declare the building safe before re-entering for any reason.</div></div>
+        <div class="evac-step"><div class="evac-num">4</div><div class="evac-text"><strong>Cooperate with investigators</strong> — Law enforcement will want witness statements. Your observations — no matter how small — may be critical to their investigation.</div></div>
+        <div class="evac-step"><div class="evac-num">5</div><div class="evac-text"><strong>Seek mental health support</strong> — Trauma responses are completely normal. NALEO will provide access to Employee Assistance Program (EAP) counseling. Contact HR for available resources.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 11: Key Takeaways ═══ -->
+  <div class="slide" id="slide-11">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Summary</div>
+      <h2 class="slide-heading">Key Takeaways</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:12px;">These are the most critical points from this training. Review them regularly so they become second nature.</p>
+      <div class="summary-grid">
+        <div class="summary-card"><div class="summary-icon">🏃</div><div class="summary-title">Run First</div><div class="summary-text">Evacuate whenever safely possible. Leave belongings behind. Keep hands visible.</div></div>
+        <div class="summary-card"><div class="summary-icon">🚪</div><div class="summary-title">Hide Securely</div><div class="summary-text">Lock and barricade doors. Silence phone completely. Stay out of sight and away from windows.</div></div>
+        <div class="summary-card"><div class="summary-icon">✊</div><div class="summary-title">Fight as Last Resort</div><div class="summary-text">Only when there is no other option. Act with full aggression and commitment.</div></div>
+        <div class="summary-card"><div class="summary-icon">📞</div><div class="summary-title">Call 911</div><div class="summary-text">Location, description, weapons, victims. Text if you cannot safely speak.</div></div>
+        <div class="summary-card"><div class="summary-icon">🚔</div><div class="summary-title">Hands Up for Police</div><div class="summary-text">Keep hands visible, follow all instructions immediately. Do not grab officers.</div></div>
+        <div class="summary-card"><div class="summary-icon">👁</div><div class="summary-title">Report Warning Signs</div><div class="summary-text">If you see something, say something. Early reporting prevents tragedies.</div></div>
+      </div>
+      <div class="callout warning" style="margin-top:14px;">
+        <p>🎯 <strong>Action item:</strong> Identify at least two escape routes from your workspace right now — before you need them.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 12: Emergency Contacts ═══ -->
+  <div class="slide" id="slide-12">
+    <div class="slide-content">
+      <div class="slide-eyebrow">Module 11</div>
+      <h2 class="slide-heading">🚨 NALEO Emergency Contacts</h2>
+      <div class="slide-divider"></div>
+      <p style="font-size:.84rem;color:var(--text-2);margin-bottom:4px;">Save these contacts in your phone today. In an emergency, you may not have time to look them up.</p>
+      <div class="contacts-grid">
+        <div class="contact-card">
+          <div class="contact-icon">🚨</div>
+          <div><div class="contact-label">Primary Emergency Contact</div><div class="contact-value">Maria Fernandez</div><div class="contact-desc">(213) 765-9426</div></div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">🔁</div>
+          <div><div class="contact-label">Backup Emergency Contact</div><div class="contact-value">Rene Vasquez</div><div class="contact-desc">(213) 765-9417</div></div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">👤</div>
+          <div><div class="contact-label">HR / Safety Officer</div><div class="contact-value">Michael Susi</div><div class="contact-desc">(213) 765-9454</div></div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">📍</div>
+          <div><div class="contact-label">Assembly Point</div><div class="contact-value">South End Parking Lot</div><div class="contact-desc">Check in with your floor warden</div></div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-icon">🏥</div>
+          <div><div class="contact-label">Nearest Medical Facility</div><div class="contact-value">Garfield Medical Center</div><div class="contact-desc">525 N. Garfield Ave., Monterey Park, CA 91754 · (626) 573-2222</div></div>
+        </div>
+        <div class="contact-card emergency">
+          <div class="contact-icon">🚒</div>
+          <div><div class="contact-label">Emergency Services</div><div class="contact-value">911</div><div class="contact-desc">Call or text in an emergency</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 13: Quiz Intro ═══ -->
+  <div class="slide" id="slide-13">
+    <div class="slide-content" style="text-align:center;">
+      <div class="quiz-intro-box">
+        <h1>Knowledge <em>Check</em></h1>
+        <p>You've completed all training modules. Now test your understanding with a 10-question quiz. Score at least <strong style="color:var(--gold);">6 out of 10</strong> to receive your certificate of completion.</p>
+        <div class="tag-row">
+          <span class="tag">📋 10 Questions</span>
+          <span class="tag">✅ Instant Feedback</span>
+          <span class="tag">🏅 Certificate on 60%+</span>
+          <span class="tag">🔄 Unlimited Retakes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 14: Q1 ═══ -->
+  <div class="slide" id="slide-14">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 1 of 10</div>
+        <div class="question-text">What is the FIRST recommended action if an active shooter is present and a safe escape path is available?</div>
+        <div class="options-list" id="opts-14">
+          <div class="option" onclick="answer(14,0)"><span class="option-letter">A</span>Hide under your desk immediately</div>
+          <div class="option" onclick="answer(14,1)"><span class="option-letter">B</span>Call 911 before doing anything else</div>
+          <div class="option" onclick="answer(14,2)"><span class="option-letter">C</span>Evacuate the building as quickly as possible</div>
+          <div class="option" onclick="answer(14,3)"><span class="option-letter">D</span>Wait for instructions from management</div>
+        </div>
+        <div class="callout" id="fb-14" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 15: Q2 ═══ -->
+  <div class="slide" id="slide-15">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 2 of 10</div>
+        <div class="question-text">When sheltering in place (HIDE), what is the most important action to take?</div>
+        <div class="options-list" id="opts-15">
+          <div class="option" onclick="answer(15,0)"><span class="option-letter">A</span>Turn on all the lights so rescuers can find you</div>
+          <div class="option" onclick="answer(15,1)"><span class="option-letter">B</span>Stand by the door to listen for updates</div>
+          <div class="option" onclick="answer(15,2)"><span class="option-letter">C</span>Lock or barricade the door, silence your phone, and stay out of sight</div>
+          <div class="option" onclick="answer(15,3)"><span class="option-letter">D</span>Gather all coworkers in the hallway together</div>
+        </div>
+        <div class="callout" id="fb-15" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 16: Q3 ═══ -->
+  <div class="slide" id="slide-16">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 3 of 10</div>
+        <div class="question-text">The "FIGHT" option in Run. Hide. Fight. should be used:</div>
+        <div class="options-list" id="opts-16">
+          <div class="option" onclick="answer(16,0)"><span class="option-letter">A</span>As your first response to any active threat</div>
+          <div class="option" onclick="answer(16,1)"><span class="option-letter">B</span>Only if you have formal self-defense training</div>
+          <div class="option" onclick="answer(16,2)"><span class="option-letter">C</span>Whenever you feel threatened or frightened</div>
+          <div class="option" onclick="answer(16,3)"><span class="option-letter">D</span>Only as a last resort when you cannot run or hide and your life is in imminent danger</div>
+        </div>
+        <div class="callout" id="fb-16" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 17: Q4 ═══ -->
+  <div class="slide" id="slide-17">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 4 of 10</div>
+        <div class="question-text">When calling 911 during an active shooter incident, the MOST critical piece of information to provide first is:</div>
+        <div class="options-list" id="opts-17">
+          <div class="option" onclick="answer(17,0)"><span class="option-letter">A</span>The number of people injured</div>
+          <div class="option" onclick="answer(17,1)"><span class="option-letter">B</span>Your exact location within the building</div>
+          <div class="option" onclick="answer(17,2)"><span class="option-letter">C</span>The shooter's possible motive</div>
+          <div class="option" onclick="answer(17,3)"><span class="option-letter">D</span>The exact time the shooting started</div>
+        </div>
+        <div class="callout" id="fb-17" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 18: Q5 ═══ -->
+  <div class="slide" id="slide-18">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 5 of 10</div>
+        <div class="question-text">When law enforcement arrives at an active shooter scene, you should:</div>
+        <div class="options-list" id="opts-18">
+          <div class="option" onclick="answer(18,0)"><span class="option-letter">A</span>Keep your hands raised and visible with fingers spread, and follow all officer instructions immediately</div>
+          <div class="option" onclick="answer(18,1)"><span class="option-letter">B</span>Approach the officers quickly to show them your ID</div>
+          <div class="option" onclick="answer(18,2)"><span class="option-letter">C</span>Shout your name loudly so they know you are not the threat</div>
+          <div class="option" onclick="answer(18,3)"><span class="option-letter">D</span>Stay hidden until an officer calls your name specifically</div>
+        </div>
+        <div class="callout" id="fb-18" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 19: Q6 ═══ -->
+  <div class="slide" id="slide-19">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 6 of 10</div>
+        <div class="question-text">Which of the following is a behavioral warning sign that should be reported?</div>
+        <div class="options-list" id="opts-19">
+          <div class="option" onclick="answer(19,0)"><span class="option-letter">A</span>An employee who frequently works late</div>
+          <div class="option" onclick="answer(19,1)"><span class="option-letter">B</span>A coworker who eats lunch alone every day</div>
+          <div class="option" onclick="answer(19,2)"><span class="option-letter">C</span>An employee who takes many vacation days</div>
+          <div class="option" onclick="answer(19,3)"><span class="option-letter">D</span>A coworker who makes specific verbal threats against colleagues</div>
+        </div>
+        <div class="callout" id="fb-19" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 20: Q7 ═══ -->
+  <div class="slide" id="slide-20">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 7 of 10</div>
+        <div class="question-text">"RUN" in Run. Hide. Fight. means:</div>
+        <div class="options-list" id="opts-20">
+          <div class="option" onclick="answer(20,0)"><span class="option-letter">A</span>Run only after helping all nearby coworkers evacuate first</div>
+          <div class="option" onclick="answer(20,1)"><span class="option-letter">B</span>Evacuate immediately if there is an accessible escape path, even if others will not go</div>
+          <div class="option" onclick="answer(20,2)"><span class="option-letter">C</span>Run toward the shooter to assess the situation</div>
+          <div class="option" onclick="answer(20,3)"><span class="option-letter">D</span>Run to the nearest exit and wait just outside the door</div>
+        </div>
+        <div class="callout" id="fb-20" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 21: Q8 ═══ -->
+  <div class="slide" id="slide-21">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 8 of 10</div>
+        <div class="question-text">If you must FIGHT an active shooter, you should:</div>
+        <div class="options-list" id="opts-21">
+          <div class="option" onclick="answer(21,0)"><span class="option-letter">A</span>Wait for other people to act first before joining in</div>
+          <div class="option" onclick="answer(21,1)"><span class="option-letter">B</span>Try to negotiate verbally before using physical force</div>
+          <div class="option" onclick="answer(21,2)"><span class="option-letter">C</span>Act aggressively using any available object, and commit fully to stopping the threat</div>
+          <div class="option" onclick="answer(21,3)"><span class="option-letter">D</span>Focus only on non-lethal defensive moves</div>
+        </div>
+        <div class="callout" id="fb-21" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 22: Q9 ═══ -->
+  <div class="slide" id="slide-22">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 9 of 10</div>
+        <div class="question-text">After successfully evacuating the building during an active shooter incident, you should:</div>
+        <div class="options-list" id="opts-22">
+          <div class="option" onclick="answer(22,0)"><span class="option-letter">A</span>Wait in the parking lot nearest to the entrance to help others exit</div>
+          <div class="option" onclick="answer(22,1)"><span class="option-letter">B</span>Call your family before doing anything else</div>
+          <div class="option" onclick="answer(22,2)"><span class="option-letter">C</span>Re-enter the building to help injured coworkers</div>
+          <div class="option" onclick="answer(22,3)"><span class="option-letter">D</span>Proceed to the designated assembly point and check in with your floor warden</div>
+        </div>
+        <div class="callout" id="fb-22" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 23: Q10 ═══ -->
+  <div class="slide" id="slide-23">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="quiz-container">
+        <div class="question-number">Question 10 of 10</div>
+        <div class="question-text">"If You See Something, Say Something" means:</div>
+        <div class="options-list" id="opts-23">
+          <div class="option" onclick="answer(23,0)"><span class="option-letter">A</span>Report suspicious behavior, threats, or concerning changes in a coworker to management or security immediately</div>
+          <div class="option" onclick="answer(23,1)"><span class="option-letter">B</span>Call 911 every time you witness something that seems unusual</div>
+          <div class="option" onclick="answer(23,2)"><span class="option-letter">C</span>Post concerns on social media to raise public awareness</div>
+          <div class="option" onclick="answer(23,3)"><span class="option-letter">D</span>Privately document incidents in your own notes in case they escalate</div>
+        </div>
+        <div class="callout" id="fb-23" style="display:none;margin-top:14px;"><p></p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 24: Score + Certificate ═══ -->
+  <div class="slide" id="slide-24">
+    <div class="slide-content" style="display:flex;justify-content:center;">
+      <div class="score-screen">
+        <div class="slide-eyebrow" style="text-align:center;">Training Complete</div>
+        <h2 class="slide-heading" style="text-align:center;margin-bottom:18px;">Your Results</h2>
+        <div class="score-circle">
+          <div class="score-number" id="scoreNum">—</div>
+          <div class="score-total">out of 10</div>
+        </div>
+        <div class="score-message" id="scoreMsg"></div>
+        <div class="score-breakdown" id="scoreBreakdown"></div>
+
+        <!-- Certificate section (pass) -->
+        <div id="certSection" style="display:none;" class="cert-section">
+          <div class="cert-label">Enter your name to generate your certificate:</div>
+          <div class="cert-name-row">
+            <input type="text" class="cert-name-input" id="nameInput" placeholder="Your full name" oninput="updateCert()">
+            <button class="cert-print-btn" onclick="window.print()">🖨️ Print</button>
+          </div>
+          <div class="certificate-doc" id="certBox">
+            <div class="cert-org-name">NALEO Educational Fund</div>
+            <div class="cert-doc-title">Certificate of Completion</div>
+            <div class="cert-body">This certifies that</div>
+            <div class="cert-name-disp" id="certName">Your Name</div>
+            <div class="cert-body">has successfully completed the</div>
+            <div class="cert-doc-title" style="font-size:1.15rem;">Active Shooter Preparedness Training</div>
+            <div class="cert-details" id="certDate"></div>
+            <div class="cert-footer">
+              <div class="cert-sig"><div class="cert-sig-val">NALEO Educational Fund</div><div class="cert-sig-line">Issuing Organization</div></div>
+              <div class="cert-sig"><div class="cert-sig-val">Safety &amp; Preparedness</div><div class="cert-sig-line">Program · 2026</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fail section -->
+        <div id="failSection" style="display:none;">
+          <div class="callout warning" style="margin-top:14px;">
+            <p>📚 <strong>Keep going!</strong> Review the training modules and try again. You need 6 out of 10 to receive your certificate.</p>
+          </div>
+        </div>
+
+        <div class="score-actions">
+          <button class="action-btn secondary" id="retakeBtn" onclick="restartQuiz()" style="display:none;">🔄 Retake Quiz</button>
+          <button class="action-btn primary" onclick="restartAll()">↺ Restart Training</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /presentation -->
+
+<!-- Nav footer -->
+<div class="nav-footer">
+  <button class="nav-btn" id="backBtn" onclick="navigate(-1)" disabled>← Back</button>
+  <div class="nav-dots" id="dotNav"></div>
+  <button class="nav-btn primary" id="nextBtn" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+const TOTAL       = 25;
+const QUIZ_START  = 14;
+const SCORE_SLIDE = 24;
+const STORAGE_KEY = 'naleo_active_shooter_progress';
+const DARK_KEY    = 'naleo_dark_mode_shooter';
+
+const CORRECT_ANSWERS = {14:2,15:2,16:3,17:1,18:0,19:3,20:1,21:2,22:3,23:0};
+
+const FEEDBACK = {
+  14: {
+    correct: '✓ Correct! Evacuating (Run) is always the preferred first action when a safe escape path is available. Leave belongings behind and keep hands visible.',
+    wrong:   '✗ Incorrect. When a safe escape path exists, Run (evacuate) is always the best first option. Leave everything and get out immediately.'
+  },
+  15: {
+    correct: '✓ Correct! Locking/barricading the door, silencing your phone, and staying out of sight are the most critical Hide actions.',
+    wrong:   '✗ Incorrect. When hiding, lock or barricade the door, silence your phone completely, and stay out of the shooter\'s line of sight.'
+  },
+  16: {
+    correct: '✓ Correct! Fight is only a last resort — only when you cannot run or hide and your life is in imminent danger.',
+    wrong:   '✗ Incorrect. Fight should only be used as a last resort when there is no possibility of running or hiding and your life is in immediate danger.'
+  },
+  17: {
+    correct: '✓ Correct! Your exact location is the most critical information — it allows law enforcement to respond to the right place immediately.',
+    wrong:   '✗ Incorrect. Your exact location is the most critical piece of information. Law enforcement needs to know where to go first.'
+  },
+  18: {
+    correct: '✓ Correct! Keep hands raised with fingers spread and follow all officer instructions immediately. Officers cannot distinguish victims from threats until the scene is secured.',
+    wrong:   '✗ Incorrect. You must keep your hands clearly visible with fingers spread and follow all law enforcement instructions immediately.'
+  },
+  19: {
+    correct: '✓ Correct! Specific verbal threats against colleagues are a serious warning sign requiring immediate reporting to management or law enforcement.',
+    wrong:   '✗ Incorrect. Specific verbal threats against colleagues are a clear warning sign. Working late, eating alone, or taking vacation are not warning signs.'
+  },
+  20: {
+    correct: '✓ Correct! Run means evacuate immediately when a path is available — even if others hesitate. Do not wait for everyone to agree.',
+    wrong:   '✗ Incorrect. Run means evacuate immediately if a safe path is available, even if others won\'t go. You cannot help anyone if you become a victim too.'
+  },
+  21: {
+    correct: '✓ Correct! When fighting is necessary, commit fully — act aggressively, use any available object as a weapon, and do not hesitate.',
+    wrong:   '✗ Incorrect. When fighting is the only option, commit fully and act aggressively. Hesitation can be fatal. Use any available object as a weapon.'
+  },
+  22: {
+    correct: '✓ Correct! After evacuating, proceed to the assembly point (South End Parking Lot) and check in with your floor warden so everyone is accounted for.',
+    wrong:   '✗ Incorrect. After evacuating, proceed to the designated assembly point and check in with your floor warden. Do not re-enter the building.'
+  },
+  23: {
+    correct: '✓ Correct! Reporting suspicious behavior or threats to management or security immediately is exactly what "See Something, Say Something" means.',
+    wrong:   '✗ Incorrect. "See Something, Say Something" means reporting to management or security immediately — not to social media, and not just privately documenting it.'
+  }
+};
+
+let currentSlide = 0;
+let userAnswers   = {};
+let quizAnswered  = {};
+
+/* ── Persistence ── */
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (s.currentSlide  !== undefined) currentSlide  = s.currentSlide;
+    if (s.userAnswers)  userAnswers  = s.userAnswers;
+    if (s.quizAnswered) quizAnswered = s.quizAnswered;
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({currentSlide, userAnswers, quizAnswered}));
+    const el = document.getElementById('saveIndicator');
+    el.classList.add('visible');
+    setTimeout(() => el.classList.remove('visible'), 1600);
+  } catch(e) {}
+}
+
+/* ── Dark mode ── */
+function toggleDark() {
+  const on = document.getElementById('darkToggle').checked;
+  document.body.classList.toggle('dark', on);
+  document.getElementById('darkIcon').textContent = on ? '🌙' : '☀️';
+  localStorage.setItem(DARK_KEY, on ? 'true' : 'false');
+}
+function initDark() {
+  if (localStorage.getItem(DARK_KEY) === 'true') {
+    document.body.classList.add('dark');
+    document.getElementById('darkToggle').checked = true;
+    document.getElementById('darkIcon').textContent = '🌙';
+  }
+}
+
+/* ── Dots ── */
+function buildDots() {
+  const nav = document.getElementById('dotNav');
+  nav.innerHTML = '';
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'nav-dot' + (i === currentSlide ? ' active' : (i < currentSlide ? ' visited' : ''));
+    d.setAttribute('aria-label', 'Slide ' + (i + 1));
+    d.onclick = () => goTo(i);
+    nav.appendChild(d);
+  }
+}
+
+/* ── Navigation ── */
+function updateNav() {
+  document.getElementById('backBtn').disabled = (currentSlide === 0);
+  const nb = document.getElementById('nextBtn');
+  if (currentSlide === SCORE_SLIDE) {
+    nb.style.display = 'none';
+  } else {
+    nb.style.display = '';
+    const quizBlocked = (currentSlide >= QUIZ_START && currentSlide < SCORE_SLIDE && !quizAnswered[currentSlide]);
+    nb.disabled = quizBlocked;
+  }
+  buildDots();
+  document.getElementById('slideCounter').textContent =
+    String(currentSlide + 1).padStart(2, '0') + ' / ' + String(TOTAL).padStart(2, '0');
+  document.getElementById('progressBar').style.width = ((currentSlide + 1) / TOTAL * 100) + '%';
+}
+
+function showSlide(idx) {
+  document.querySelectorAll('.slide').forEach(s => { s.classList.remove('active', 'exit'); });
+  document.getElementById('slide-' + idx).classList.add('active');
+}
+
+function goTo(idx) {
+  if (idx < 0 || idx >= TOTAL) return;
+  currentSlide = idx;
+  showSlide(idx);
+  updateNav();
+  if (idx === SCORE_SLIDE) showScore();
+  saveState();
+}
+
+function navigate(dir) { goTo(currentSlide + dir); }
+
+/* ── Quiz ── */
+function answer(si, ci) {
+  if (quizAnswered[si]) return;
+  quizAnswered[si] = true;
+  userAnswers[si]  = ci;
+  saveState();
+
+  const correct = CORRECT_ANSWERS[si];
+  document.getElementById('opts-' + si).querySelectorAll('.option').forEach((opt, i) => {
+    opt.onclick = null;
+    if (i === correct)              opt.classList.add('correct');
+    else if (i === ci && ci !== correct) opt.classList.add('wrong');
+  });
+
+  const fb  = document.getElementById('fb-' + si);
+  const ok  = (ci === correct);
+  fb.style.display = '';
+  fb.classList.remove('callout', 'warning', 'green');
+  fb.classList.add('callout', ok ? 'green' : 'warning');
+  fb.querySelector('p').textContent = ok ? FEEDBACK[si].correct : FEEDBACK[si].wrong;
+
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function restoreQuizState() {
+  Object.keys(quizAnswered).forEach(si => {
+    const idx    = parseInt(si);
+    if (!quizAnswered[idx]) return;
+    const chosen  = userAnswers[idx];
+    const correct = CORRECT_ANSWERS[idx];
+    const opts    = document.getElementById('opts-' + idx);
+    if (!opts) return;
+    opts.querySelectorAll('.option').forEach((opt, i) => {
+      opt.onclick = null;
+      if (i === correct)                    opt.classList.add('correct');
+      else if (i === chosen && chosen !== correct) opt.classList.add('wrong');
+    });
+    const fb = document.getElementById('fb-' + idx);
+    const ok = (chosen === correct);
+    fb.style.display = '';
+    fb.classList.remove('callout', 'warning', 'green');
+    fb.classList.add('callout', ok ? 'green' : 'warning');
+    fb.querySelector('p').textContent = ok ? FEEDBACK[idx].correct : FEEDBACK[idx].wrong;
+  });
+}
+
+/* ── Score ── */
+function showScore() {
+  let score = 0;
+  for (let i = QUIZ_START; i < SCORE_SLIDE; i++) {
+    if (userAnswers[i] !== undefined && userAnswers[i] === CORRECT_ANSWERS[i]) score++;
+  }
+  const pass = score >= 6;
+  document.getElementById('scoreNum').textContent  = score;
+  document.getElementById('scoreMsg').textContent  = pass
+    ? '🎉 Congratulations! You passed!'
+    : '📚 Keep Studying — You\'re Almost There!';
+
+  const bd = document.getElementById('scoreBreakdown');
+  bd.innerHTML = `<span class="score-badge badge-correct">✓ ${score} Correct</span><span class="score-badge badge-wrong">✗ ${10 - score} Incorrect</span>`;
+
+  document.getElementById('certSection').style.display = pass ? '' : 'none';
+  document.getElementById('failSection').style.display = pass ? 'none' : '';
+  document.getElementById('retakeBtn').style.display   = pass ? 'none' : '';
+
+  if (pass) {
+    const today = new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('certDate').textContent = 'Completed on ' + today;
+    document.getElementById('certBox').classList.add('visible');
+  }
+}
+
+function updateCert() {
+  const val = document.getElementById('nameInput').value.trim();
+  document.getElementById('certName').textContent = val || 'Your Name';
+}
+
+function restartQuiz() {
+  for (let i = QUIZ_START; i < SCORE_SLIDE; i++) {
+    delete userAnswers[i];
+    delete quizAnswered[i];
+  }
+  saveState();
+  goTo(QUIZ_START);
+}
+
+function restartAll() {
+  localStorage.removeItem(STORAGE_KEY);
+  currentSlide = 0;
+  userAnswers  = {};
+  quizAnswered = {};
+  goTo(0);
+}
+
+/* ── Init ── */
+loadState();
+initDark();
+showSlide(currentSlide);
+restoreQuizState();
+updateNav();
+if (currentSlide === SCORE_SLIDE) showScore();
+</script>
+</body>
+</html>
